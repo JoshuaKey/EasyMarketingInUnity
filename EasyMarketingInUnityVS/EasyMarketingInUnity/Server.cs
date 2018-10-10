@@ -19,8 +19,8 @@ namespace EasyMarketingInUnity {
 
         private Process process;
         private int port;
-        private bool debug;
         private string serverURL;
+        private string shutdownURL;
         private List<Authenticator> authenticators = new List<Authenticator>();
 
         public static Server Instance = null;
@@ -34,9 +34,12 @@ namespace EasyMarketingInUnity {
         /// <param name="debug">Whether or not the Process should be shown, and wether to log Data</param>
         /// <param name="port">Which port to run the Server on</param>
         /// <returns>True if creating the server was successful, or the server was already started</returns>
-        public static bool StartServer(bool debug = false, int port = 3000) {
+        public static bool StartServer(int port = 3000) {
+            if (!CheckServer()) {
+                EndServer();
+            }
             if (Instance != null) {
-                if(Instance.port == port && Instance.debug == debug) {
+                if(Instance.port == port) {
                     return true;
                 }
                 EndServer();             
@@ -47,19 +50,14 @@ namespace EasyMarketingInUnity {
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "\"" + dir + file + "\"";
-            //startInfo.CreateNoWindow = true;
-            ////startInfo.WindowStyle = debug ? ProcessWindowStyle.Hidden : ProcessWindowStyle.Normal;
-            //startInfo.UseShellExecute = false;
-            ////startInfo.WindowStyle = ProcessWindowStyle.
-            startInfo.Arguments = port + " " + debug;
+            startInfo.Arguments = port + " ";
 
             Instance = new Server();
             Instance.port = port;
-            Instance.debug = debug;
             Instance.serverURL = "http://localhost:" + port + "/";
+            Instance.shutdownURL = "cmd/Shutdown";
             Instance.process = Process.Start(startInfo);
             
-
             Authenticator twitter = new Authenticator("Twitter");
             twitter.authenticateCmdURL = "cmd/Twitter/Authenticate";
             twitter.getCmdURL = "cmd/Twitter/Get";
@@ -78,12 +76,26 @@ namespace EasyMarketingInUnity {
         /// <returns>True if the server was shut down successfully or the server was already shutdown</returns>
         public static bool EndServer() {
             if (Instance == null) { return true; }
-            if (Instance.process == null) { return true; }
+            if (Instance.process == null) {
+                Instance = null;
+                return true;
+            }
+
+            if (Instance.process.Responding) {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Instance.serverURL + Instance.shutdownURL);
+                request.Method = "Get";
+                Authenticator.AddCookiesToRequest(request);
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) { }
+            }
 
             if (!Instance.process.HasExited) {
                 Instance.process.CloseMainWindow();
             }
-            Instance.process.Kill();
+            try {
+                Instance.process.Kill();
+            } catch (InvalidOperationException e) {}
+            catch (NotSupportedException e) {}
+            catch (System.ComponentModel.Win32Exception e) {}     
 
             Instance.process = null;
 
@@ -93,8 +105,8 @@ namespace EasyMarketingInUnity {
         }
 
         // True if Server is functioning, I think it works...
-        public bool CheckServer() {
-            return process.Responding || !process.HasExited;
+        public static bool CheckServer() {
+            return Instance != null && (Instance.process.Responding || !Instance.process.HasExited);
         }
 
         /// <summary>
@@ -109,16 +121,17 @@ namespace EasyMarketingInUnity {
                 authenticators.Add(auth);
             }
         }
-        // You really shouldn't need to call this method.
         public Authenticator GetAuthenticator(string name) {
+            name = name.ToLower();
             return authenticators.Find((auth) => {
                 return auth.Name == name;
             });
         }
+        public Authenticator[] GetAuthenticators() { return authenticators.ToArray(); }
 
-        public JObject SendRequest(string name, Method cmdMethod, string query = "", string body = "") {
-            name = name.ToLower();
-            Authenticator auth = authenticators.Find((authenticator) => authenticator.Name == name);
+        public JObject SendRequest(string authName, Method cmdMethod, string query = "", string body = "") {
+            authName = authName.ToLower();
+            Authenticator auth = authenticators.Find((authenticator) => authenticator.Name == authName);
 
             // Throw Error?
             // Error Checking
@@ -143,36 +156,57 @@ namespace EasyMarketingInUnity {
                 case Method.Post:
                     method = "POST";
                     url += auth.postCmdURL;
-                    
                     break;
                 case Method.Get:
                     method = "GET";
                     url += auth.getCmdURL;
+                    break;
+                default:
+                    method = "GET";
                     break;
             }
 
             if (query != "") {
                 url = url + "?" + query;
             }
+            Console.WriteLine(CredentialCache.DefaultCredentials);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.UseDefaultCredentials = true;
+            request.PreAuthenticate = true;
+            request.Accept = "*/*";
+            request.UserAgent = "curl/7.55.1";
             request.Method = method;
+            request.Credentials = CredentialCache.DefaultCredentials;
+
             //request.GetRequestStream
             //request.ContentLength
             //request.ContentType
             //request.MediaType
             //request.Timeout
             //request.SendChunked
-            
+
+            // Add Cookies for Session Persistence
+            Authenticator.AddCookiesToRequest(request);
+
+            foreach (string key in request.Headers.AllKeys) {
+                Console.WriteLine(key + ": " + request.Headers[key]);
+            }
 
             JObject responseObj = null;
-            using (WebResponse response = request.GetResponse()) {
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                Authenticator.AddCookiesFromResponse(response);
                 using (Stream stream = response.GetResponseStream()) {
                     using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
-                        responseObj = (JObject)JsonConvert.DeserializeObject(reader.ReadToEnd());
+                        //response.ContentType
+
+                        try {
+                            responseObj = (JObject)JsonConvert.DeserializeObject(reader.ReadToEnd());
+                        } catch (JsonReaderException e) {
+                            //Console.WriteLine(e);
+                        }
                     }
                 }
-                response.Close();
             }
 
             if (cmdMethod == Method.Authenticate) {

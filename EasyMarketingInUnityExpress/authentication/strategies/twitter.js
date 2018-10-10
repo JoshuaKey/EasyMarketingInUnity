@@ -28,7 +28,7 @@ var authenticate = function(){
             // Check if User is already added to the session?
             var user = req.user;
             if(!user){
-                user = {};   
+                user = {}; 
             }
             
             user.twitter = {};
@@ -81,10 +81,44 @@ var postTweet = function(user, status, done){
     );
 }
 
+var authObj = {};
+var authCallback = function(){
+    //Compare AuthObj
+    console.log(authObj);
+    
+    var response = {
+        error: '',
+        results: ''
+    };
+    try {
+        if(authObj.res2.req.cookies){
+             authObj.res1.req.cookies = authObj.res2.req.cookies;
+        } else {
+            response.error = response.error + '; Cookies not found';
+        }
+        if(authObj.res2.req.sessionID){
+            authObj.res1.req.sessionID = authObj.res2.req.sessionID;
+        } else {
+            response.error = response.error + '; Session ID not found';
+        }
+    } catch(err){
+        response.error = response.error + '; ' + err; 
+    }
+
+    if(response.error == ''){
+        response.results = 'Authentication Successful';
+    }
+
+    authObj.res1.json(response);  
+//    authObj.res2.json(response);  
+}
+
 // Return an object with service methods to make oAuth calls
 exports.Service = {
     getTweet: getTweet,
-    postTweet: postTweet
+    postTweet: postTweet,
+    authObj: authObj,
+    authCallback: authCallback
 }
 
 // Return a function to setup Authentcation
