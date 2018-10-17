@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class EditorGUILayoutWindow : EditorWindow {
 
+    // % (ctrl on Windows, cmd on macOS), # (shift), & (alt
+    // LEFT, RIGHT, UP, DOWN, F1 .. F12, HOME, END, PGUP, PGDN.
+    // _a, _b, _c, _d, ...
+
     [MenuItem("Window/Easy Marketing in Unity/Editor GUI Layout Window")]
     public static void ShowWindow() {
         EditorGUILayoutWindow window = EditorWindow.GetWindow<EditorGUILayoutWindow>(true, "Editor GUI Layout Window", true);

@@ -7,7 +7,10 @@ using UnityEngine;
 namespace EasyMarketingInUnity {
     public class TwitterWindow : EditorWindow {
 
-        [MenuItem("Window/Easy Marketing in Unity/Twitter Window")]
+        const string openTwitterWindowHotKey = "&5";
+        //"Window/Easy Marketing in Unity/Twitter Window " + 
+
+        [MenuItem("Window/Easy Marketing in Unity/Twitter Window " + openTwitterWindowHotKey)]
         public static void ShowWindow() {
             TwitterWindow window = EditorWindow.GetWindow<TwitterWindow>(false, "Twitter Window", true);
             window.Show();
@@ -66,7 +69,7 @@ namespace EasyMarketingInUnity {
         private string m_tweet = "";
         private string m_response = "";
         void TwitterGUI() {
-            Authenticator twitter = Server.Instance.GetAuthenticator("Twitter");
+            Authenticator twitter = Server.GetAuthenticator("Twitter");
             string name = "Twitter";
             bool authenticated = twitter.Authenticated;
 
@@ -78,7 +81,7 @@ namespace EasyMarketingInUnity {
                         string query = "status=" + m_tweet;
                         m_tweet = "";
 
-                        JObject response = Server.Instance.SendRequest(name, Method.Post, query);
+                        JObject response = Server.Instance.SendRequest(name, HTTPMethod.Post, query);
                         JToken errorToken = response.GetValue("error");
                         JToken resultsToken = response.GetValue("results");
                         JToken textToken = resultsToken == null ? null : resultsToken.SelectToken("text");
@@ -93,7 +96,7 @@ namespace EasyMarketingInUnity {
 
                 Layout.GUICenter(() => {
                     if (GUILayout.Button("Get Last Tweet")) {
-                        JObject response = Server.Instance.SendRequest(name, Method.Get);
+                        JObject response = Server.Instance.SendRequest(name, HTTPMethod.Get);
                         JToken errorToken = response.GetValue("error");
                         JToken resultsToken = response.GetValue("results");
                         JToken textToken = resultsToken == null ? null : resultsToken.SelectToken("text");
@@ -101,14 +104,14 @@ namespace EasyMarketingInUnity {
                         if (textToken != null) {
                             m_response = "Tweet: " + textToken.CreateReader().ReadAsString();
                         }  else {
-                            m_response = "Could not get last Tweet\n" + errorToken.CreateReader().ReadAsString();
+                            m_response = "Could not get last Tweet\n" + response;
                         }
                     }
                 });
             } else {
                 Layout.GUICenter(() => {
                     if (GUILayout.Button("Authenticate")) {
-                        JObject response = Server.Instance.SendRequest(name, Method.Authenticate);
+                        JObject response = Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
                         JToken errorToken = response.GetValue("error");
 
                         if (twitter.Authenticated) {
@@ -129,4 +132,18 @@ namespace EasyMarketingInUnity {
             });
         }
     }
+
+    // Tracking Key Presses
+
+    //[InitializeOnLoad]
+    //public static class EditorHotkeysTracker {
+    //    static EditorHotkeysTracker() {
+    //        SceneView.onSceneGUIDelegate += view =>
+    //        {
+    //            var e = Event.current;
+    //            if (e != null && e.keyCode != KeyCode.None)
+    //                Debug.Log("Key pressed in editor: " + e.keyCode);
+    //        };
+    //    }
+    //}
 }

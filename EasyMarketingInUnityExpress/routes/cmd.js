@@ -3,6 +3,7 @@ var opn = require('opn');
 
 var router = express.Router();
 
+var PassportService = require('../authentication/passport').Service;
 var TwitterService = require('../authentication/strategies/twitter').Service;
 
 // Error Information
@@ -34,22 +35,20 @@ var sendResponse = function(res, error, results){
 }
 
 router.all('/Shutdown', function(req, res, next){
-//    req.session.clear();
-    req.session.destroy();
-    res.clearCookie('connect.sid');
-    req.logout();
-    sendResponse(res, null, 'Success');
+////    req.session.clear();
+//    req.session.destroy();
+//    res.clearCookie('connect.sid');
+//    req.logout();
+//    sendResponse(res, null, 'Success');
     
     console.log('Shut Down Server???');
 });
 
 // TWITTER ----------------------------------------------------------------------------------
+// status = Tweet Status (150 characters)
+// media = Appended Image (5 MB), Gif (15 MB), Video (15 MB)
 router.all('/Twitter/Post', function(req, res, next) {
-    var user = req.user;
-    console.log(req);
-    console.log(user);
-    
-    if(!user || !user.twitter){
+    if(!req.user || !req.user.twitter){
         sendResponse(res, createAuthError('Please Authenticate Twitter'), null);
         return;
     }
@@ -60,47 +59,51 @@ router.all('/Twitter/Post', function(req, res, next) {
     } 
     
     var status = req.query.status;
+    var media = req.query.media; 
     
-    TwitterService.postTweet(user, status, function(err, tweet){
-        console.log(err);
-        console.log(tweet);
-        sendResponse(res, err, tweet);    
-    });
+    console.log(media);
     
+    if(media){
+        res.connection.setTimeout(0);
+        TwitterService.postMedia(req.user, status, media, function(err, tweet){
+            console.log(err);
+            console.log(tweet);
+            sendResponse(res, err, tweet);    
+        });
+    } else {
+        TwitterService.postTweet(req.user, status, function(err, tweet){
+            console.log(err);
+            console.log(tweet);
+            sendResponse(res, err, tweet);    
+        });
+    }
+
+    //
 });
-router.all('/Twitter/Get', function(req, res, next) {
-//    req.session.reload(function(err) {
-//      // session updated
-//    })
-    console.log(req);
+router.all('/Twitter/Get', function(req, res, next) {    
     if(!req.user || !req.user.twitter){
         sendResponse(res, createAuthError('Please Authenticate Twitter'), null);
         return;
-    }
+    }  
     
     TwitterService.getTweet(req.user, function(err, tweet){
         console.log(err);
         console.log(tweet);
         sendResponse(res, err, tweet);        
     });
-    
 });
 router.all('/Twitter/Authenticate', function(req, res, next) {
     res.connection.setTimeout(0); // Don't Timeout, make take a while
     
-//    console.log(req);
-//    console.log(res);
-//    req.session.reload(function(err) {
-//      // session updated
-//    })
-    
-    console.log('Inside Authenticate Method');
-    console.log(req.sessionID);
+    if(req.user && req.user.twitter){
+        sendResponse(res, null, 'Authentication Successful');
+        return;
+    }
 
     opn('http://localhost:' + (process.env.PORT || '3000') + '/auth/Twitter');   
     
-    TwitterService.authObj.res1 = res;
-//    sendResponse(res, '', '');
+    // Save the Original Response
+    PassportService.altResponse.res = res;
 });
 
 module.exports = router;

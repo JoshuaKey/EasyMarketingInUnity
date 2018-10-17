@@ -33,14 +33,15 @@ namespace EasyMarketingInUnityConsole {
         static void Main(string[] args) {
 
             if (Server.StartServer()) {
-                while (Server.Instance != null && Server.Instance.CheckServer()) {
+                while (Server.Instance != null && Server.CheckServer()) {
                     JObject JSON = null;
+                    string query = "";
 
                     if (!Server.Instance.GetAuthenticator("Twitter").Authenticated) {
                         Prompt("Choose: ", new string[] { "Authenticate", "Exit" });
                         switch(GetSelection(1, 2)) {
                             case 1:
-                                JSON = Server.Instance.SendRequest("Twitter", Method.Authenticate);
+                                JSON = Server.Instance.SendRequest("Twitter", HTTPMethod.Authenticate);
                                 Console.WriteLine(JSON);
                                 break;
                             case 2:
@@ -48,20 +49,32 @@ namespace EasyMarketingInUnityConsole {
                                 break;
                         }
                     } else {
-                        Prompt("Choose: ", new string[] { "GET Twitter", "POST Twitter", "Exit" });
-                        switch (GetSelection(1, 3)) {
+                        Prompt("Choose: ", new string[] { "GET Twitter", "POST Twitter", "Post Image Twitter", "Exit" });
+                        switch (GetSelection(1, 4)) {
                             case 1:
-                                JSON = Server.Instance.SendRequest("Twitter", Method.Get);
+                                JSON = Server.Instance.SendRequest("Twitter", HTTPMethod.Get);
                                 Console.WriteLine(JSON);
                                 break;
                             case 2:
                                 Console.Write("Tweet: ");
-                                string query = "status=" + Console.ReadLine();
+                                query = "status=" + Console.ReadLine();
 
-                                JSON = Server.Instance.SendRequest("Twitter", Method.Post, query);
+                                JSON = Server.Instance.SendRequest("Twitter", HTTPMethod.Post, query);
                                 Console.WriteLine(JSON);
                                 break;
                             case 3:
+                                Console.Write("Tweet: ");
+                                var status = Console.ReadLine();
+                                Console.Write("Media File: ");
+                                var media = Console.ReadLine();
+                                // C:\Users\Flameo326\Documents\IDEs\Unity\Capstone\Assets\Editor\Textures\Twitter.png
+
+                                query = "status=" + status + "&media=" + media;
+
+                                JSON = Server.Instance.SendRequest("Twitter", HTTPMethod.Post, query);
+                                Console.WriteLine(JSON);
+                                break;
+                            case 4:
                                 Server.EndServer();
                                 break;
                         }
@@ -72,6 +85,11 @@ namespace EasyMarketingInUnityConsole {
         }
     }
 }
+// For Twitter Chunked Upload, Sig needs to be:
+//The request URL
+//The HTTP request method
+//The query string parameters from the HTTP request line
+//The oauth_* parameters
 
 // SO I AM sending the Session ID, but for some reason, Express cant find the user based off that???
 

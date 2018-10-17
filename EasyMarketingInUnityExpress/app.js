@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var session = require('express-session');
+var cookieSession = require('cookie-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var httpLogger = require('morgan');
@@ -28,17 +29,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
-    genid: (req) => {
-        logger.info('Inside the session middleware: ' + req.sessionID);
-        return uuid(); // use UUIDs for session IDs
-    },
-    store: new FileStore(),
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true
+app.use(cookieSession({
+    secret: secret,
 }));
-require('./authentication/passport')(app);
+require('./authentication/passport').Configure(app);
 
 app.use('/', homeRouter);
 app.use('/auth', authRouter);
@@ -55,11 +49,15 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
     
-  logger.error(err);
+    var errString = JSON.stringify( err, function( key, value) {
+        if( key == 'parent') { return "[Circular Reference]";}
+        else {return value;}
+    });
+  logger.error(errString);
 
   // render the error page
   res.status(err.status || 500);
-  res.render('errorPage', {error: err});
+  res.render('errorPage', {error: err, errString: errString});
 });
 
 module.exports = app;

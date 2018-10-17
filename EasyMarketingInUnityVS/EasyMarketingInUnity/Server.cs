@@ -9,23 +9,28 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace EasyMarketingInUnity {
-    public enum Method {
+    public enum HTTPMethod {
         Authenticate,
         Post,
         Get
     }
 
-    public class Server : IDisposable{
+    [Serializable]
+    public class Server : IDisposable {
 
-        private Process process;
+        [NonSerialized] private Process process;
         private int port;
         private string serverURL;
         private string shutdownURL;
-        private List<Authenticator> authenticators = new List<Authenticator>();
 
+        private CookieContainer cookies = new CookieContainer();
+        private List<Authenticator> authenticators = null;
+        public static string saveFile = "server.dat";
         public static Server Instance = null;
+
         private Server() { }
         ~Server() { Dispose(); }
+        public void Dispose() { EndServer(); }
 
         /// <summary>
         /// Creates and maintains a Singleton Server obj for the Express Server.
@@ -35,7 +40,8 @@ namespace EasyMarketingInUnity {
         /// <param name="port">Which port to run the Server on</param>
         /// <returns>True if creating the server was successful, or the server was already started</returns>
         public static bool StartServer(int port = 3000) {
-            if (!CheckServer()) {
+            Console.WriteLine("Attempting to Start Server");
+            if (CheckServer()) {
                 EndServer();
             }
             if (Instance != null) {
@@ -45,6 +51,17 @@ namespace EasyMarketingInUnity {
                 EndServer();             
             }
 
+            Console.WriteLine("Starting Server");
+            if (!SaveFileExists() || !LoadServer()) {
+                Instance = new Server();
+                Instance.port = port;
+                Instance.serverURL = "http://localhost:" + port + "/";
+                Instance.shutdownURL = "cmd/Shutdown";
+                Instance.SetupGenericAuthenticators();
+            } else {
+                port = Instance.port;
+            }
+
             string dir = "C:/Users/Flameo326/Documents/IDEs/Unity/Capstone/EasyMarketingInUnityExpress/";
             string file = "Start.bat";
 
@@ -52,23 +69,10 @@ namespace EasyMarketingInUnity {
             startInfo.FileName = "\"" + dir + file + "\"";
             startInfo.Arguments = port + " ";
 
-            Instance = new Server();
-            Instance.port = port;
-            Instance.serverURL = "http://localhost:" + port + "/";
-            Instance.shutdownURL = "cmd/Shutdown";
+            Console.WriteLine("Starting Process");
             Instance.process = Process.Start(startInfo);
-            
-            Authenticator twitter = new Authenticator("Twitter");
-            twitter.authenticateCmdURL = "cmd/Twitter/Authenticate";
-            twitter.getCmdURL = "cmd/Twitter/Get";
-            twitter.postCmdURL = "cmd/Twitter/Post";
-            Instance.AddAuthenticator(twitter);
 
             return true;
-        }
-
-        public void Dispose() {
-            EndServer();
         }
         /// <summary>
         /// Kills the Server
@@ -80,33 +84,136 @@ namespace EasyMarketingInUnity {
                 Instance = null;
                 return true;
             }
+            Console.WriteLine("Ending Server");
 
-            if (Instance.process.Responding) {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Instance.serverURL + Instance.shutdownURL);
-                request.Method = "Get";
-                Authenticator.AddCookiesToRequest(request);
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) { }
-            }
+            SaveServer();
+
+            //if (Instance.process.Responding) {
+            //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Instance.serverURL + Instance.shutdownURL);
+            //    request.Method = "Get";
+            //    //AddCookiesToRequest(request);
+            //    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) { }
+            //}
 
             if (!Instance.process.HasExited) {
                 Instance.process.CloseMainWindow();
             }
+
+            bool success = true;
+            Console.WriteLine("Killing Process");
             try {
                 Instance.process.Kill();
-            } catch (InvalidOperationException e) {}
-            catch (NotSupportedException e) {}
-            catch (System.ComponentModel.Win32Exception e) {}     
+            } catch (InvalidOperationException e) {
+                Console.WriteLine("Killing Failed");
+                Console.WriteLine(e);
+                return false;
+            }
+            catch (NotSupportedException e) {
+                Console.WriteLine("Killing Failed");
+                Console.WriteLine(e);
+                return false;
+            } catch (System.ComponentModel.Win32Exception e) {
+                Console.WriteLine("Killing Failed");
+                Console.WriteLine(e);
+                return false;
+            }
+
+            if (success) {
+                Console.WriteLine("Killing Success");
+            }
 
             Instance.process = null;
-
             Instance = null;
-
             return true;
+        }
+
+        /// <summary>
+        /// Saves the Server at Server.savefile
+        /// This includes Port, Authenticators and Cookies
+        /// </summary>
+        /// <returns></returns>
+        public static bool SaveServer() {
+            Console.WriteLine("Saving Server");
+
+            using (Stream stream = File.Open(saveFile, FileMode.Create)) {
+                try {
+                    var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    binaryFormatter.Serialize(stream, Instance);
+                } catch(System.Runtime.Serialization.SerializationException e) {
+                    Console.WriteLine("Save Failed");
+                    Console.WriteLine(e);
+                    return false;
+                }
+            }
+
+            Console.WriteLine("Save Successful");
+            return true;
+        }
+        /// <summary>
+        /// Loads the server at Server.saveFile
+        /// Stores the server in Server.Instance
+        /// </summary>
+        /// <returns></returns>
+        public static bool LoadServer() {
+            Console.WriteLine("Loading Server");
+
+
+            using (Stream stream = File.Open(saveFile, FileMode.Open)) {
+                try {
+                    var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    Instance = (Server)binaryFormatter.Deserialize(stream);
+                } catch (System.Runtime.Serialization.SerializationException e) {
+                    Console.WriteLine("Load Failed");
+                    Console.WriteLine(e);
+                    return false;
+                }
+            }
+
+            Console.WriteLine("Load Successful");
+            return true;
+        }
+        /// <summary>
+        /// Checks if the Server.saveFile Exists
+        /// </summary>
+        /// <returns></returns>
+        public static bool SaveFileExists() {
+            return File.Exists(saveFile);
         }
 
         // True if Server is functioning, I think it works...
         public static bool CheckServer() {
             return Instance != null && (Instance.process.Responding || !Instance.process.HasExited);
+        }
+
+        /// <summary>
+        /// Initializes the Authenticator List and Supplies it with Generic Sites
+        /// </summary>
+        public void SetupGenericAuthenticators() {
+            if (authenticators == null) {
+                authenticators = new List<Authenticator>();
+            }
+            AddGenericAuthenticator("Twitter");
+            AddGenericAuthenticator("Facebook");
+            AddGenericAuthenticator("Google Plus");
+            AddGenericAuthenticator("Youtube");
+            AddGenericAuthenticator("Itch");
+            AddGenericAuthenticator("Discord");
+            AddGenericAuthenticator("Reddit");
+            AddGenericAuthenticator("VK");
+            AddGenericAuthenticator("Slack");
+            AddGenericAuthenticator("Instagram");
+        }
+        /// <summary>
+        /// For Internal use only
+        /// Adds a generic predetermined Authenticator like Twitter or Google
+        /// </summary>
+        /// <param name="name">Generic name for Authenticator and Route</param>
+        private void AddGenericAuthenticator(string name) {
+            Authenticator authenticator = new Authenticator(name);
+            authenticator.authenticateCmdURL = "cmd/" + name + "/Authenticate";
+            authenticator.getCmdURL = "cmd/" + name + "/Get";
+            authenticator.postCmdURL = "cmd/" + name + "/Post";
+            AddAuthenticator(authenticator);
         }
 
         /// <summary>
@@ -116,48 +223,65 @@ namespace EasyMarketingInUnity {
         /// </summary>
         /// <param name="auth"></param>
         public void AddAuthenticator(Authenticator auth) {
-            Authenticator found = authenticators.Find((auth2) => auth2.Name == auth.Name);
+            Authenticator found = GetAuthenticator(auth.Name);
             if(found == null) {
                 authenticators.Add(auth);
             }
         }
+        /// <summary>
+        /// Retireves the Authenticator
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Returns the Authenticator with the given name, null if not found</returns>
         public Authenticator GetAuthenticator(string name) {
             name = name.ToLower();
             return authenticators.Find((auth) => {
-                return auth.Name == name;
+                return auth.Name.ToLower() == name;
             });
         }
         public Authenticator[] GetAuthenticators() { return authenticators.ToArray(); }
 
-        public JObject SendRequest(string authName, Method cmdMethod, string query = "", string body = "") {
-            authName = authName.ToLower();
-            Authenticator auth = authenticators.Find((authenticator) => authenticator.Name == authName);
+        /// <summary>
+        /// Allows an Authenticator to send a request to the server.
+        /// </summary>
+        /// <param name="authName">Name of the Authenticator</param>
+        /// <param name="cmdMethod">Which Method or Route to use</param>
+        /// <param name="query">Attached to URL, ex. q?status=...</param>
+        /// <param name="body">Added in the body of the Post</param>
+        /// <returns>Returns the JSON Response from the Server, which contains Error: and Response: from API</returns>
+        public JObject SendRequest(string authName, HTTPMethod cmdMethod, string query = "", string body = "") {
+            Authenticator auth = GetAuthenticator(authName);
 
-            // Throw Error?
             // Error Checking
             if (auth == null) {
-                throw new ArgumentException("No Authenticator Found");
+                Console.WriteLine("No Authenticator Found");
+                return null;
+                //throw new ArgumentException("No Authenticator Found");
             } 
-            if(!auth.Authenticated  && cmdMethod != Method.Authenticate) {
-                throw new InvalidOperationException("Authenticator has not been authenticated");
+            if(!auth.Authenticated  && cmdMethod != HTTPMethod.Authenticate) {
+                Console.WriteLine("Authenticator has not been authenticated");
+                return null;
+                //throw new InvalidOperationException("Authenticator has not been authenticated");
             }
-            if (cmdMethod == Method.Post && query == "" && body == "") {
-                throw new ArgumentException("Can not post without Body or Query");
+            if (cmdMethod == HTTPMethod.Post && query == "" && body == "") {
+                Console.WriteLine("Can not post without Body or Query");
+                return null;
+                //throw new ArgumentException("Can not post without Body or Query");
             }
 
             string method = "";
             string url = serverURL;
 
             switch (cmdMethod) {
-                case Method.Authenticate:
+                case HTTPMethod.Authenticate:
                     method = "GET";
                     url += auth.authenticateCmdURL;
                     break;
-                case Method.Post:
+                case HTTPMethod.Post:
                     method = "POST";
                     url += auth.postCmdURL;
                     break;
-                case Method.Get:
+                case HTTPMethod.Get:
                     method = "GET";
                     url += auth.getCmdURL;
                     break;
@@ -169,7 +293,6 @@ namespace EasyMarketingInUnity {
             if (query != "") {
                 url = url + "?" + query;
             }
-            Console.WriteLine(CredentialCache.DefaultCredentials);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.UseDefaultCredentials = true;
@@ -179,44 +302,50 @@ namespace EasyMarketingInUnity {
             request.Method = method;
             request.Credentials = CredentialCache.DefaultCredentials;
 
-            //request.GetRequestStream
-            //request.ContentLength
-            //request.ContentType
-            //request.MediaType
-            //request.Timeout
-            //request.SendChunked
-
-            // Add Cookies for Session Persistence
-            Authenticator.AddCookiesToRequest(request);
-
-            foreach (string key in request.Headers.AllKeys) {
-                Console.WriteLine(key + ": " + request.Headers[key]);
-            }
+            // Add Cookies for Session Persistence - Probably not needed...
+            AddCookiesToRequest(request);
 
             JObject responseObj = null;
+            string responseStr = "";
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
-                Authenticator.AddCookiesFromResponse(response);
+                AddCookiesFromResponse(response);
                 using (Stream stream = response.GetResponseStream()) {
                     using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
-                        //response.ContentType
-
+                        responseStr = reader.ReadToEnd();
                         try {
-                            responseObj = (JObject)JsonConvert.DeserializeObject(reader.ReadToEnd());
-                        } catch (JsonReaderException e) {
-                            //Console.WriteLine(e);
+                            responseObj = (JObject)JsonConvert.DeserializeObject(responseStr);
+                        } catch (JsonReaderException) {
+                            responseObj = new JObject(responseStr);
                         }
                     }
                 }
             }
 
-            if (cmdMethod == Method.Authenticate) {
+            if (cmdMethod == HTTPMethod.Authenticate) {
                 auth.CheckAuthentication(responseObj);
             }
-
             return responseObj;
         }
-        public bool SendAsyncRequest(string name, Method method) {
+
+        public bool SendAsyncRequest(string name, HTTPMethod method) {
             return false;
+        }
+
+        private void AddCookiesFromResponse(HttpWebResponse response) {
+            PrintCookies();
+            cookies.Add(response.Cookies);
+        }
+        private void AddCookiesToRequest(HttpWebRequest request) {
+            PrintCookies();
+            request.CookieContainer = cookies;
+        }
+        private void PrintCookies() {
+            CookieCollection CC = cookies.GetCookies(new Uri("http://localhost/"));
+            Console.WriteLine("\nCookies in http://localhost/:");
+            foreach (Cookie c in CC) {
+                Console.WriteLine("\t" + c.Name + ": " + c.Value);
+            }
+            Console.WriteLine();
         }
     }
 }
