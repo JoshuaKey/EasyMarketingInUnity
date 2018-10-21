@@ -1,67 +1,65 @@
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
-{"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
+{"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: afdba8cd-29ce-418a-9486-72b352451641","level":"info"}
-{"message":"Inside the session middleware: afdba8cd-29ce-418a-9486-72b352451641","level":"info"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: afdba8cd-29ce-418a-9486-72b352451641","level":"info"}
-{"level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\594da944-4e4e-4bbf-99f5-98946ad77990.json.2807718231","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\594da944-4e4e-4bbf-99f5-98946ad77990.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -72,154 +70,91 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Inside the session middleware: 594da944-4e4e-4bbf-99f5-98946ad77990","level":"info"}
-{"message":"Not Found","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Not Found","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\d23091d2-5a76-4e33-b0f9-eae374de1fa8.json.2830522943","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\d23091d2-5a76-4e33-b0f9-eae374de1fa8.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Not Found","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json.2766194348","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json.3340051726","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json.1159138089","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json.1065511031","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json.1112674705","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e26591ea-1d63-44e7-bf49-56bcb68b3a57.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Inside the session middleware: e26591ea-1d63-44e7-bf49-56bcb68b3a57","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\6060f700-ced5-436e-9519-d6fffbc0e9d8.json.1142316797","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\6060f700-ced5-436e-9519-d6fffbc0e9d8.json","level":"error"}
-{"message":"Not Found","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Inside the session middleware: 6060f700-ced5-436e-9519-d6fffbc0e9d8","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ff226a83-e2df-49a1-9ea6-79b050b16ec2.json.1545477614","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ff226a83-e2df-49a1-9ea6-79b050b16ec2.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ff226a83-e2df-49a1-9ea6-79b050b16ec2.json.2753414146","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ff226a83-e2df-49a1-9ea6-79b050b16ec2.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: ff226a83-e2df-49a1-9ea6-79b050b16ec2","level":"info"}
-{"message":"Inside the session middleware: ff226a83-e2df-49a1-9ea6-79b050b16ec2","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: c82aa108-54f6-44ca-aa18-939e6ce591a2","level":"info"}
-{"message":"Inside the session middleware: c82aa108-54f6-44ca-aa18-939e6ce591a2","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: a61fe4ec-1316-4e4b-a385-54dd3b9a0c16","level":"info"}
-{"message":"Inside the session middleware: a61fe4ec-1316-4e4b-a385-54dd3b9a0c16","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: 9712ee90-2e28-4b73-8606-ca6b222f58f0","level":"info"}
-{"message":"Inside the session middleware: 9712ee90-2e28-4b73-8606-ca6b222f58f0","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\86b2e915-4d5b-4e92-9d28-8f84259d0ab6.json.1268412673","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\86b2e915-4d5b-4e92-9d28-8f84259d0ab6.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: 86b2e915-4d5b-4e92-9d28-8f84259d0ab6","level":"info"}
-{"message":"Inside the session middleware: 86b2e915-4d5b-4e92-9d28-8f84259d0ab6","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json.99908424","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json.2389738673","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json.495814644","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\eb703874-90e9-4d10-a3a2-3416de2b9e68.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"message":"Inside the session middleware: undefined","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json.755437436","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json.1731801648","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json.3400601364","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json","level":"error"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json.421247036","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15","level":"info"}
-{"message":"Inside the session middleware: e7e7a08b-bc2d-411f-9a5e-1fc5fd433a15","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\af0c87b6-c1a6-46ab-89de-08b229130f09.json.879566395","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\af0c87b6-c1a6-46ab-89de-08b229130f09.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: af0c87b6-c1a6-46ab-89de-08b229130f09","level":"info"}
-{"message":"Inside the session middleware: af0c87b6-c1a6-46ab-89de-08b229130f09","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: b78b6bc3-fe83-4caa-94e9-58b70d3772be","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: 1febcc58-449c-4e64-8212-e468a983b90f","level":"info"}
-{"message":"Inside the session middleware: 1febcc58-449c-4e64-8212-e468a983b90f","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: 75cec820-f484-493e-9ab3-59ab02166604","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"Inside the session middleware: 4bc10796-cb2d-46af-9433-18bb46ce4327","level":"info"}
+{"message":"{\"message\":\"Not Found\"}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -244,11 +179,8 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"level":"error"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -261,7 +193,6 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ybWrt7OipkrmVZcMcphoXH8TKIIGzSaX.json.3519940941","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\ybWrt7OipkrmVZcMcphoXH8TKIIGzSaX.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -270,7 +201,6 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\zLSZvQcMuy0LODY87f3U8GODdldGpvv6.json.3372415486","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\zLSZvQcMuy0LODY87f3U8GODdldGpvv6.json","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -281,8 +211,6 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"errno":-4048,"code":"EPERM","syscall":"rename","path":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\6uu0P7M9HGCcnB2ocsfwCqhl3UZFVgQc.json.11931655","dest":"C:\\Users\\Flameo326\\Documents\\IDEs\\Unity\\Capstone\\EasyMarketingInUnityExpress\\sessions\\6uu0P7M9HGCcnB2ocsfwCqhl3UZFVgQc.json","level":"error"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -299,7 +227,6 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
@@ -372,26 +299,20 @@
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"{}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"{}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"{}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"{}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
-{"message":"{}","level":"error"}
 {"message":"\n------------------------------------------------------","level":"info"}
 {"message":"Starting server on port 3000","level":"info"}
 {"message":"\n------------------------------------------------------","level":"info"}

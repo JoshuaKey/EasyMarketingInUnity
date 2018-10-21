@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnityConsole
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnity", "EasyMarketingInUnity\EasyMarketingInUnity.csproj", "{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnityBasic", "EasyMarketingInUnityBasic\EasyMarketingInUnityBasic.csproj", "{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

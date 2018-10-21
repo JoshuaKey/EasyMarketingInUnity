@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,6 +20,9 @@ namespace EasyMarketingInUnity {
     public class Server : IDisposable {
 
         [NonSerialized] private Process process;
+        [NonSerialized] private bool onExitCalled;
+        //private int previousID;
+
         private int port;
         private string serverURL;
         private string shutdownURL;
@@ -26,7 +30,9 @@ namespace EasyMarketingInUnity {
         private CookieContainer cookies = new CookieContainer();
         private List<Authenticator> authenticators = null;
         public static string saveFile = "server.dat";
+        public static string logFile = "server.log";
         public static Server Instance = null;
+        static readonly object Lock = new object();
 
         private Server() { }
         ~Server() { Dispose(); }
@@ -39,19 +45,15 @@ namespace EasyMarketingInUnity {
         /// <param name="debug">Whether or not the Process should be shown, and wether to log Data</param>
         /// <param name="port">Which port to run the Server on</param>
         /// <returns>True if creating the server was successful, or the server was already started</returns>
-        public static bool StartServer(int port = 3000) {
-            Console.WriteLine("Attempting to Start Server");
+        public static bool StartServer(int port = 3000, bool debug = false) {
+            Server.Log("Attempting to Start Server");
             if (CheckServer()) {
-                EndServer();
-            }
-            if (Instance != null) {
-                if(Instance.port == port) {
-                    return true;
+                if (!EndServer()) {
+                    return false;
                 }
-                EndServer();             
             }
 
-            Console.WriteLine("Starting Server");
+            Server.Log("Starting Server");
             if (!SaveFileExists() || !LoadServer()) {
                 Instance = new Server();
                 Instance.port = port;
@@ -68,9 +70,37 @@ namespace EasyMarketingInUnity {
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "\"" + dir + file + "\"";
             startInfo.Arguments = port + " ";
+            if (debug) {
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = true;
+                startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                startInfo.WorkingDirectory = dir;
+            }
 
-            Console.WriteLine("Starting Process");
-            Instance.process = Process.Start(startInfo);
+            // Cleanup Previous Process
+            CleanupPrevousProcesses();
+
+            // Start Process
+            try {
+                Instance.process = Process.Start(startInfo);
+                //Instance.previousID = Instance.process.Id;
+                //Console.WriteLine("Process ID: " + Instance.previousID);
+            } catch (InvalidOperationException e) {
+                Server.Log("Process Failed\n\t" + e);
+                return false;
+            } catch (FileNotFoundException e) {
+                Server.Log("Process Failed\n\t" + e);
+                return false;
+            } catch (System.ComponentModel.Win32Exception e) {
+                Server.Log("Process Failed\n\t" + e);
+                return false;
+            }
+            Server.Log("Process Running");
+
+            SaveServer();
+
+            Instance.process.EnableRaisingEvents = true;
+            Instance.process.Exited += new EventHandler(OnExit);
 
             return true;
         }
@@ -79,52 +109,174 @@ namespace EasyMarketingInUnity {
         /// </summary>
         /// <returns>True if the server was shut down successfully or the server was already shutdown</returns>
         public static bool EndServer() {
+            // Check for Prior Exit / Invalid State
             if (Instance == null) { return true; }
             if (Instance.process == null) {
                 Instance = null;
                 return true;
             }
-            Console.WriteLine("Ending Server");
 
-            SaveServer();
+            // Lock in case of OnExit Event
+            lock (Lock) {
+                Server.Log("Ending Server");
+                // Save Server by default
+                SaveServer(); 
 
-            //if (Instance.process.Responding) {
-            //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Instance.serverURL + Instance.shutdownURL);
-            //    request.Method = "Get";
-            //    //AddCookiesToRequest(request);
-            //    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) { }
-            //}
+                // Check for cleanup from previous Event
+                if (Instance.onExitCalled) {
+                    Instance.process = null;
+                    Instance = null;
+                    Server.Log("Process already Exited");
+                    Server.Log(); // Add a Blank line
+                    return true;
+                }
 
-            if (!Instance.process.HasExited) {
-                Instance.process.CloseMainWindow();
+                // Send Shutdown Request   
+                if (IsResponding()) {
+                    Server.Log("Sending Shutdown Request: \n\t" + Instance.serverURL + Instance.shutdownURL);
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Instance.serverURL + Instance.shutdownURL);
+                    request.Method = "GET";
+                    using (HttpWebResponse response = GetResponse(request)) {
+                        if (response != null) {
+                            ServerObject serverObj = ServerObject.CreateServerResponse(response);
+                            if (serverObj.status != 200) {
+                                Server.Log("Server responded with:\n\t" + serverObj);
+                            } else {
+                                Server.Log("Shutdown Request sent Successfully!");
+                            }
+                        } else {
+                            Server.Log("Did not recieve a response from Server");
+                        }
+                    }
+                } 
+
+                // Attempt to close process
+                bool success = false;
+                try {
+                    int id = Instance.process.Id;
+
+                    Server.Log("Closing Main Window");
+                    success = Instance.process.CloseMainWindow();
+
+                    // Check if process has exited
+                    success = Instance.process.HasExited;
+                    // Look for process
+                    try {
+                        if (Process.GetProcessById(id) != null) { success = false; }
+                    } catch (ArgumentException e) { } catch (InvalidOperationException e) { }
+
+                    Server.Log("Close " + (success ? "Successful" : "Failed"));
+                } catch (InvalidOperationException e) {
+                    Server.Log("Close Failed\n\t" + e);
+                } catch (PlatformNotSupportedException e) {
+                    Server.Log("Close Failed\n\t" + e);
+                }
+
+                // Attempts to Kill Process
+                if (!success) {
+                    try {
+                        int id = Instance.process.Id;
+
+                        Server.Log("Killing Process");
+                        //Instance.process.Refresh();
+                        Instance.process.Kill();
+                        Instance.process.WaitForExit(3000);
+                    
+                        // Check if process has exited
+                        success = Instance.process.HasExited;
+                        // Look for process
+                        try {
+                            if (Process.GetProcessById(id) != null) { success = false; }
+                        } catch(ArgumentException e) {}
+                        catch(InvalidOperationException e) {}                      
+
+                        if (success) {
+                            Server.Log("Killing Success");
+                            Server.Log("Exit Code: " + Instance.process.ExitCode);
+                        } else {
+                            Server.Log("Killing Failed");
+                        }
+
+                    } catch (InvalidOperationException e) {
+                        Server.Log("Killing Failed\n\t" + e);
+                    } catch (NotSupportedException e) {
+                        Server.Log("Killing Failed\n\t" + e);
+                    } catch (System.ComponentModel.Win32Exception e) {
+                        Server.Log("Killing Failed\n\t" + e);
+                    } catch(SystemException e) {
+                        Server.Log("Killing Failed\n\t" + e);
+                    }    
+                }
+
+                //CleanupPrevousProcesses();
+
+                // Cleanup 
+                if (Instance != null) {
+                    if (Instance.process != null) {
+                        Instance.process.Dispose();
+                        Instance.process.Close();
+                        Instance.process = null;
+                    }
+                    Instance = null;
+                }
+                Server.Log(); // Add a Blank line
+                return success;
             }
-
-            bool success = true;
-            Console.WriteLine("Killing Process");
-            try {
-                Instance.process.Kill();
-            } catch (InvalidOperationException e) {
-                Console.WriteLine("Killing Failed");
-                Console.WriteLine(e);
-                return false;
-            }
-            catch (NotSupportedException e) {
-                Console.WriteLine("Killing Failed");
-                Console.WriteLine(e);
-                return false;
-            } catch (System.ComponentModel.Win32Exception e) {
-                Console.WriteLine("Killing Failed");
-                Console.WriteLine(e);
-                return false;
-            }
-
-            if (success) {
-                Console.WriteLine("Killing Success");
-            }
-
-            Instance.process = null;
+        }
+        public static void RESET_SERVER() {
+            Server.Log("RESETING");
             Instance = null;
-            return true;
+        }
+        
+        private static void OnExit(object sender, System.EventArgs e) {
+            var thread = new Thread(() => {
+                lock (Lock) {
+                    Server.Log("OnExit() is being Called");
+
+                    Process sendProcess = null;
+                    if (sender is Process) {
+                       
+                        sendProcess = (Process)sender;
+
+                        sendProcess.Exited -= OnExit;
+                        sendProcess.Dispose();
+                        sendProcess.Close();
+
+                        if (Instance != null && Instance.process == sendProcess) {
+                            Server.Log("Process has Exited");
+                            Instance.onExitCalled = true;
+                        } else {
+                            Server.Log("Different Process has exited.");
+                        }
+
+                    } else {
+                        Server.Log("Sender is not a process!");
+                    }
+                    Server.Log(); // Add a Blank line
+                }
+            });
+            thread.Start();           
+        }
+        private static void CleanupPrevousProcesses() {
+            // By ID
+            //if (Instance.previousID != 0) {
+            //    try {
+            //        var p = Process.GetProcessById(Instance.previousID);
+            //        if (p != null) {
+            //            Server.Log("Found Process: " + p.ProcessName + " (" + p.Id + ")\n\tAttempting to Kill");
+            //            try {
+            //                p.Kill();
+            //            } catch (InvalidOperationException e) {
+            //                Server.Log("Kill Failed: \n\t" + e);
+            //            }
+            //            Server.Log("Kill " + (p.HasExited ? "Successful" : "Failed"));
+            //        }
+            //    } catch (InvalidOperationException e) {
+            //        Server.Log("Error finding Processes:\n\t" + e);
+            //    } catch (ArgumentException e) {
+            //        Server.Log("Error finding Processes:\n\t" + e);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -133,20 +285,19 @@ namespace EasyMarketingInUnity {
         /// </summary>
         /// <returns></returns>
         public static bool SaveServer() {
-            Console.WriteLine("Saving Server");
+            Server.Log("Saving Server");
 
             using (Stream stream = File.Open(saveFile, FileMode.Create)) {
                 try {
                     var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                     binaryFormatter.Serialize(stream, Instance);
                 } catch(System.Runtime.Serialization.SerializationException e) {
-                    Console.WriteLine("Save Failed");
-                    Console.WriteLine(e);
+                    Server.Log("Save Failed\n\t" + e);
                     return false;
                 }
             }
 
-            Console.WriteLine("Save Successful");
+            Server.Log("Save Successful");
             return true;
         }
         /// <summary>
@@ -155,21 +306,19 @@ namespace EasyMarketingInUnity {
         /// </summary>
         /// <returns></returns>
         public static bool LoadServer() {
-            Console.WriteLine("Loading Server");
-
+            Server.Log("Loading Server");
 
             using (Stream stream = File.Open(saveFile, FileMode.Open)) {
                 try {
                     var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                     Instance = (Server)binaryFormatter.Deserialize(stream);
                 } catch (System.Runtime.Serialization.SerializationException e) {
-                    Console.WriteLine("Load Failed");
-                    Console.WriteLine(e);
+                    Server.Log("Load Failed\n\t" + e);
                     return false;
                 }
             }
 
-            Console.WriteLine("Load Successful");
+            Server.Log("Load Successful");
             return true;
         }
         /// <summary>
@@ -180,9 +329,96 @@ namespace EasyMarketingInUnity {
             return File.Exists(saveFile);
         }
 
-        // True if Server is functioning, I think it works...
+        /// <summary>
+        /// Logs the message to Server.logFile
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="type">Log Level, i.e. ERROR, WARNING, INFO, DEBUG, etc.</param>
+        /// <returns>True if it wrote to the file successfully.</returns>
+        public static bool Log(string message = "", string type = "INFO") {           
+            try {
+                if (message == "") { File.AppendAllText(logFile, "\n"); return true; }
+
+                string time = DateTime.UtcNow.ToString("h:mm:ss.fff tt");
+                string log = type + " [" + time + "] : " + message + "\n";
+                File.AppendAllText(logFile, log);
+            } catch (IOException e) {
+                return false;
+            } catch (NotSupportedException e) {
+                return false;
+            } catch (System.Security.SecurityException e) {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the server is valid. 
+        /// Specifically Instance is valid and Process is Valid
+        /// </summary>
+        /// <returns>True if Server.Instance can safely be used</returns>
         public static bool CheckServer() {
-            return Instance != null && (Instance.process.Responding || !Instance.process.HasExited);
+            return Instance != null && Instance.process != null;
+        }
+        /// <summary>
+        /// Checks if the process is functioning
+        /// Specifically checks if its dunctioning has already exited and catches any errors.
+        /// Relies on CheckServer
+        /// </summary>
+        /// <returns>True if the process is still running in the background</returns>
+        private static bool IsResponding() {
+            bool status = CheckServer();
+            if (status) {
+                try {
+                    bool responding = Instance.process.Responding;
+                    if (!responding) {
+                        Server.Log("Server is not Responding");
+                        return false;
+                    }          
+
+                    return true;
+                } catch (InvalidOperationException e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                } catch (NotSupportedException e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                } catch (System.ComponentModel.Win32Exception e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                }
+            }
+            Server.Log("Server is invalid");
+            return false;
+        }
+        /// <summary>
+        /// Checks if the process has ended. Just because the prcoess isn't functioning doesn't mean it has ended
+        /// </summary>
+        /// <returns></returns>
+        private static bool HasEnded() {
+            bool status = CheckServer();
+            if (status) {
+                try {
+                    bool exited = Instance.process.HasExited;
+                    if (exited) {
+                        Server.Log("Server has Exited");
+                        return true;
+                    }
+
+                    return false;
+                } catch (InvalidOperationException e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                } catch (NotSupportedException e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                } catch (System.ComponentModel.Win32Exception e) {
+                    Server.Log("Server is Bad\n\t" + e);
+                    return false;
+                }
+            }
+            Server.Log("Server is invalid");
+            return false;
         }
 
         /// <summary>
@@ -249,24 +485,23 @@ namespace EasyMarketingInUnity {
         /// <param name="query">Attached to URL, ex. q?status=...</param>
         /// <param name="body">Added in the body of the Post</param>
         /// <returns>Returns the JSON Response from the Server, which contains Error: and Response: from API</returns>
-        public JObject SendRequest(string authName, HTTPMethod cmdMethod, string query = "", string body = "") {
+        public ServerObject SendRequest(string authName, HTTPMethod cmdMethod, string query = "", string body = "") {
             Authenticator auth = GetAuthenticator(authName);
 
             // Error Checking
             if (auth == null) {
-                Console.WriteLine("No Authenticator Found");
-                return null;
-                //throw new ArgumentException("No Authenticator Found");
+                Server.Log("No Authenticator Found");
+                return ServerObject.CreateErrorResponse(new ArgumentException("No Authenticator Found"));
             } 
-            if(!auth.Authenticated  && cmdMethod != HTTPMethod.Authenticate) {
-                Console.WriteLine("Authenticator has not been authenticated");
-                return null;
-                //throw new InvalidOperationException("Authenticator has not been authenticated");
+            if (!auth.Authenticated  && cmdMethod != HTTPMethod.Authenticate) {
+                Server.Log("Authenticator has not been authenticated");
+                var e = new InvalidOperationException("Authenticator has not been authenticated");
+                return ServerObject.CreateErrorResponse(e);
             }
             if (cmdMethod == HTTPMethod.Post && query == "" && body == "") {
-                Console.WriteLine("Can not post without Body or Query");
-                return null;
-                //throw new ArgumentException("Can not post without Body or Query");
+                Server.Log("Can not post without Body or Query");
+                var e = new ArgumentException("Can not post without Body or Query");
+                return ServerObject.CreateErrorResponse(e);
             }
 
             string method = "";
@@ -294,70 +529,63 @@ namespace EasyMarketingInUnity {
                 url = url + "?" + query;
             }
 
+            Server.Log("Sending Request:\n\t" + method + " " + url);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.UseDefaultCredentials = true;
-            request.PreAuthenticate = true;
-            request.Accept = "*/*";
-            request.UserAgent = "curl/7.55.1";
             request.Method = method;
-            request.Credentials = CredentialCache.DefaultCredentials;
 
             // Add Cookies for Session Persistence - Probably not needed...
             AddCookiesToRequest(request);
 
-            JObject responseObj = null;
-            string responseStr = "";
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+            ServerObject serverObj = null;
+            using (HttpWebResponse response = GetResponse(request)) {
+                if(response == null) { Server.Log("Did not recieve a response from Server");  return null; }
                 AddCookiesFromResponse(response);
-                using (Stream stream = response.GetResponseStream()) {
-                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
-                        responseStr = reader.ReadToEnd();
-                        try {
-                            responseObj = (JObject)JsonConvert.DeserializeObject(responseStr);
-                        } catch (JsonReaderException) {
-                            responseObj = new JObject(responseStr);
-                        }
-                    }
-                }
+                serverObj = ServerObject.CreateServerResponse(response);
+                Server.Log("Recieved Response:\n\t" + serverObj);
             }
 
             if (cmdMethod == HTTPMethod.Authenticate) {
-                auth.CheckAuthentication(responseObj);
+                bool pass = auth.CheckAuthentication(serverObj);
+                Server.Log(auth.Name + " Authentication " + (pass ? "Succeeded" : "Failed"));
             }
-            return responseObj;
+
+            return serverObj;
         }
 
-        public bool SendAsyncRequest(string name, HTTPMethod method) {
-            return false;
+        public ServerObject SendAsyncRequest(string name, HTTPMethod method) {
+            return null;
+        }
+
+        /// <summary>
+        /// Gets HttpWebResponse even if an error is thrown. This helps for 400 or 404 status codes.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private static HttpWebResponse GetResponse(HttpWebRequest request) {
+            HttpWebResponse response = null;
+            try {
+                response = (HttpWebResponse)request.GetResponse();
+            } catch (WebException e) {
+                Server.Log("Bad Response: \n\t" + e);
+                response = (HttpWebResponse)e.Response;
+            }
+            return response;
         }
 
         private void AddCookiesFromResponse(HttpWebResponse response) {
-            PrintCookies();
+            //PrintCookies();
             cookies.Add(response.Cookies);
         }
         private void AddCookiesToRequest(HttpWebRequest request) {
-            PrintCookies();
+            //PrintCookies();
             request.CookieContainer = cookies;
         }
         private void PrintCookies() {
             CookieCollection CC = cookies.GetCookies(new Uri("http://localhost/"));
-            Console.WriteLine("\nCookies in http://localhost/:");
+            Server.Log("\nCookies in http://localhost/:");
             foreach (Cookie c in CC) {
-                Console.WriteLine("\t" + c.Name + ": " + c.Value);
+                Server.Log("\t" + c.Name + ": " + c.Value);
             }
-            Console.WriteLine();
         }
     }
 }
-
-// So...
-// How about, you create a server by calling StartServer. This will run the batch file for the Express Server
-// Then you can add Authenticators, or sites that use oAuth and can Authenticate, Post and Get Content from them.
-// After they've been added, you can call SendRequest with the Method and recieve the result
-// At the End, you can call EndServer, Dispose, or wait for Garbage Collection to remove the Server.
-
-// Maybe I should make everything static....
-// How to Appropriately stop a Process
-// How to Check Server... Is it correct?
-
-// Should Routes be get, or post, or all?

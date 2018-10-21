@@ -1,6 +1,6 @@
 cd "C:\Users\Flameo326\Documents\IDEs\Unity\Capstone\EasyMarketingInUnityExpress"
 
-:: I expect to call this as Start.bat port_number use_logging
+:: I expect to call this as Start.bat port_number
 IF [%1]==[] (
      set PORT=3000
 ) ELSE (
@@ -9,7 +9,7 @@ IF [%1]==[] (
 
 ECHO "Port = %PORT%"
 
-npm start 
+npm start  || PAUSE
 
 
 @pause

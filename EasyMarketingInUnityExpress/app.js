@@ -45,19 +45,24 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
     
     var errString = JSON.stringify( err, function( key, value) {
         if( key == 'parent') { return "[Circular Reference]";}
         else {return value;}
     });
-  logger.error(errString);
+    logger.error(errString);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('errorPage', {error: err, errString: errString});
+    // render the error page
+    res.status(err.status || 500);
+    
+    console.log(req);
+    console.log(err);
+    // var Res = require('./utility/response');
+    // Res.send500Response(res, err.code, err.name + ': ' + err.message)
+    res.render('errorPage', {error: err, errString: errString});
 });
 
 module.exports = app;

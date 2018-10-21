@@ -1,5 +1,7 @@
 var passport = require('passport');
 
+var Res = require('../utility/response');
+
 var configure = function(app){
     
     app.use(passport.initialize());
@@ -25,32 +27,20 @@ var configure = function(app){
 var altResponse = { res: null };
 var successCallback = function (res){
     if(altResponse.res == null) { return; }
-    var response = {
-        error: '',
-        results: ''
-    };
-    
-    // Recover Cookies
+
+    // Recover Session / Cookies
     try {
         if(res.req.cookies){
-            console.log('Alt Req Session');
-            console.log(altResponse.res.req.session)
-            console.log('Curr Req Session');
-            console.log(res.req.session);
              altResponse.res.req.session = res.req.session;
+             Res.send200Response(altResponse.res, 'Authentication Successful');
         } else {
-            response.error = response.error + '; Cookies not found';
+            Res.send400Response(altResponse.res, -1, 'Session not found');
         }    
     } 
     catch(err){
-        response.error = response.error + '; ' + err; 
+        Res.send500Response(altResponse.res, -1, err);
     }
 
-    if(response.error == ''){
-        response.results = 'Authentication Successful';
-    }
-
-    altResponse.res.json(response);  
     altResponse.res = null;
 }
 

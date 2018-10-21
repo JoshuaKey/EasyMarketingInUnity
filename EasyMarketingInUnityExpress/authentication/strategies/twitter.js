@@ -1,6 +1,7 @@
 var passport = require('passport');
 var fs = require('fs');
 var mime = require('mime-types');
+var path = require('path');
 
 var Twitter = require('passport-twitter').Strategy;
 var OAuth = require('oauth').OAuth;
@@ -33,36 +34,94 @@ var authenticate = function(){
             if(!user){
                 user = {}; 
             }
+//            console.log(profile);
             
             user.twitter = {};
             user.twitter.id = profile.id;
             user.twitter.token = token;
             user.twitter.tokenSecret = tokenSecret;
+            user.twitter.username = profile.username;
             
             done(null, user);        
         }
     ));
 }
 
-// Sends an oAuth call to get the last tweet posted.
+// Returns the User's timeline
 // Limit of 900 calls per 15 minutes
 // @User = User Object containing Twitter ID, Token, and Secret
 // @Done = should be a callback with (err, tweetObj) (?)
-var getTweet = function(user, done){
+var getTimeline = function(user, done){
     oauth.get('https://api.twitter.com/1.1/statuses/user_timeline.json?user_id=' + user.twitter.id,
         user.twitter.token,
         user.twitter.tokenSecret,
         function(err, results, res){
-            if(err) { done(err, null); }
+            if(err) { done(createTwitterError(err), null); }
             else {
                 results = JSON.parse(results);
-                done(null, results[0]);
+                done(null, results);
             }
         }
     );
 }
 
-// Sends an oAuth call to post a tweet.
+// Returns the specific Tweet in detail
+// Limit of 900 calls per 15 minutes
+// @User = User Object containing Twitter ID, Token, and Secret
+// @Tweet = Tweet ID
+// @Done = should be a callback with (err, tweetObj) (?)
+var getTweet = function(user, tweet, done){
+    var url = 'https://api.twitter.com/1.1/statuses/show.json?id=' + tweet + '&include_ext_alt_text=true';
+    oauth.get(url,
+        user.twitter.token,
+        user.twitter.tokenSecret,
+        function(err, results, res){
+            if(err) { 
+                done(createTwitterError(err), null); 
+                return;
+            }
+            
+            results = JSON.parse(results);
+            done(null, results);
+        }
+    );
+}
+
+// Returns an array of tweets that are replies to the corresponding tweet
+// Limit of 900 calls per 15 minutes
+// @User = User Object containing Twitter ID, Token, and Secret
+// @Tweet = Corresponding Tweet ID
+// @Done = should be a callback with (err, tweetObj) (?)
+var getReplies = function(user, tweet, done){
+    
+    var querySearch = oauth._encodeData('to:'+ user.twitter.username);
+    var queryID = oauth._encodeData(tweet);
+    var query = '?q=' + querySearch + '&since_id=' + queryID;
+    oauth.get('https://api.twitter.com/1.1/search/tweets.json' + query,   
+            user.twitter.token,
+            user.twitter.tokenSecret,
+            function(err, results, res) {
+                if(err) { done(createTwitterError(err), null); return; }
+
+                results = JSON.parse(results);
+                console.log(results);
+
+                var statuses = results.statuses;
+                var replies = [];
+
+                for(var i = 0; i < statuses.length; i++){
+                    var status = statuses[i];
+                    if(status.in_reply_to_status_id_str == tweet){
+                        replies.push(status);
+                    }
+                }
+
+                done(null, replies);
+            }
+    );
+}
+
+// Sends an oAuth call to post a tweet. - DOES NOT WORK, Because oAuth Sig needs to be changed
 // Limit of 300 per 3 hours
 // @User = User Object containing Twitter ID, Token, and Secret
 // @Status = Text to be displayed in the tweet
@@ -79,88 +138,13 @@ var postMediaChunked = function(user, status, media, done){
         );
     }
     
-//Resolution should be <= 1280x1080 (width x height)
-//Number of frames <= 350
-//Number of pixels (width * height * num_frames) <= 300 million
-//File size <= 15Mb
-        
-//Duration should be between 0.5 seconds and 30 seconds (sync) / 140 seconds (async)
-//File size should not exceed 15 mb (sync) / 512 mb (async)
-//Dimensions should be between 32x32 and 1280x1024
-        
-        // Type: multipart/form-data OR application/x-www-form-urlencoded
-        // URL: https://upload.twitter.com/1.1/media/upload.json
-        
-        // I must make an INIT Post with the Media MetaData
-//'command': 'INIT',
-//'media_type': 'video/mp4',
-//'total_bytes': self.total_bytes,
-//'media_category': 'tweet_video'
-        
-        // Followed by APPEND withe Data
-//file = open(self.video_filename, 'rb')
-//
-//while bytes_sent < self.total_bytes:
-//chunk = file.read(4*1024*1024)
-//
-//print('APPEND')
-//
-//request_data = {
-//'command': 'APPEND',
-//'media_id': self.media_id,
-//'segment_index': segment_id
-//}
-//
-//files = {
-//'media':chunk
-//}
-//
-//req = requests.post(url=MEDIA_ENDPOINT_URL, data=request_data, files=files, auth=oauth)
-//
-//if req.status_code < 200 or req.status_code > 299:
-        
-        // And FINALIZE when completely uploaded
-//'command': 'FINALIZE',
-//'media_id': self.media_id
-//req = requests.get(url=MEDIA_ENDPOINT_URL, params=request_params, auth=oauth)
-        
-        // I can check the STATUS
-//request_params = {
-//'command': 'STATUS',
-//'media_id': self.media_id
-//}
-//
-//req = requests.get(url=MEDIA_ENDPOINT_URL, params=request_params, auth=oauth)
-        
-//        fs.readFile("data/wx.hourly.txt", "utf8", function(err, data){
-//            if(err) throw err;
-//
-//            var resultArray = //do operation on data that generates say resultArray;
-//
-//            res.send(resultArray);
-//        });
-        
-//        var data = '';
-//
-//        var readStream = fs.createReadStream('my-file.txt', 'utf8');
-//
-//        readStream.on('data', function(chunk) {  
-//            data += chunk;
-//        }).on('end', function() {
-//            console.log(data);
-//        });
-    
-    console.log("In Post Media()");
     var url = 'https://upload.twitter.com/1.1/media/upload.json';
     var media_id;
     var stats;
 
-    
     // Post INIT 
     fs.stat(media, function(err, _stats) {
         if(err) { done(err, null); return; }
-        
-        console.log("In Init()");
         
         stats = _stats;
         
@@ -169,25 +153,14 @@ var postMediaChunked = function(user, status, media, done){
 
         var query = '?command=INIT&total_bytes=' + total_bytes + '&media_type=' + media_type;
 
-//        post(url + query, Append);
-        post(url + query, (err, tweet) => {
-            if(err) { done(err, null); return; }
-        
-            tweet = JSON.parse(tweet);
-            done(null, tweet);
-        });
+        post(url + query, Append);
     });
 
-    // Post APPEND and Loop
     function Append(err, tweet){
         if(err) { done(err, null); return; }
         
-        console.log("In Append()");
-        
         tweet = JSON.parse(tweet);
         media_id = tweet.media_id_string; // 64 bit number / string
-        
-        console.log(tweet);
         
         var segment_index = 0; // 0 - 100
         var initQuery = '?command=APPEND&media_id=' + media_id;      
@@ -208,8 +181,6 @@ var postMediaChunked = function(user, status, media, done){
             var data;
             while(data = this.read(4096)) { // Find Max Byte Size for URL
                 var query = initQuery + '&segment_index=' + (segment_index++) + '&media_data=' + data.toString('base64');
-                console.log(query);
-                console.log(data);
                 
                 post(url + query, (err, tweet) => {
                     console.log(tweet);
@@ -220,47 +191,16 @@ var postMediaChunked = function(user, status, media, done){
             } 
         }
         
-// RETURNS 200-299 Status 
     }
 
-    // Post FINALIZE
     function Finalize(){
-        console.log("In Finalize()");
-        
         var query = '?command=FINALIZE&media_id=' + media_id;
         post(url + query, Status);
-     
-// RETURNS
-//// Example of sync FINALIZE response
-//{
-//  "media_id": 710511363345354753,
-//  "media_id_string": "710511363345354753",
-//  "size": 11065,
-//  "expires_after_secs": 86400,
-//  "video": {
-//    "video_type": "video/mp4"
-//  }
-//}
-//
-//// Example of async FINALIZE response which requires further STATUS command call(s)
-//{
-//  "media_id": 710511363345354753,
-//  "media_id_string": "710511363345354753",
-//  "expires_after_secs": 86400,
-//  "size": 10240,
-//  "processing_info": {
-//    "state": "pending",
-//    "check_after_secs": 5 // check after 5 seconds for update using STATUS command
-//  }
-//}
     }
     
-    // POST STATUS
     function Status(err, tweet){
         if(err) { done(err, null); return; }
         tweet = JSON.parse(tweet);
-        
-        console.log(tweet);
         
         if(tweet.processing_info){
             if(tweet.process_info.error) { 
@@ -269,7 +209,6 @@ var postMediaChunked = function(user, status, media, done){
                 Tweet(err, tweet);
             } else {
                 var check_after_secs = tweet.processing_info.check_after_secs;
-//                setTimeout(Status, check_after_secs*1000, err, tweet);/// Example was 5, Thats a long time...
                 setTimeout(getStatus, check_after_secs*1000, Status);/// Example was 5, Thats a long time...
             }
         } else {
@@ -284,60 +223,11 @@ var postMediaChunked = function(user, status, media, done){
                 callback
             );         
         }
-
-
-// RETURNS
-//// Example of an in_progress response:
-//
-//{
-//  "media_id":710511363345354753,
-//  "media_id_string":"710511363345354753",
-//  "expires_after_secs":3595,
-//  "processing_info":{
-//    "state":"in_progress", // state transition flow is pending -> in_progress -> [failed|succeeded]
-//    "check_after_secs":10, // check for the update after 10 seconds
-//    "progress_percent":8 // Optional [0-100] int value. Please don't use it as a replacement of "state" field.
-//  }
-//}
-//
-//// Example of a failed response:
-//
-//{
-//  "media_id":710511363345354753,
-//  "media_id_string":"710511363345354753",
-//  "processing_info":{
-//    "state":"failed",
-//    "progress_percent":12,
-//    "error":{
-//      "code":1,
-//      "name":"InvalidMedia",
-//      "message":"Unsupported video format"
-//    }
-//  }
-//}
-//
-//// Example of a succeeded response:
-//
-//{
-//  "media_id":710511363345354753,
-//  "media_id_string":"710511363345354753",
-//  "expires_after_secs":3593,
-//  "video":{
-//    "video_type":"video/mp4"
-//  },
-//  "processing_info":{
-//    "state":"succeeded",
-//    "progress_percent":100,
-//  }
-//}
     }     
 
-    ///Post TWEET
     function Tweet(err, tweet){
         if(err) { done(err, null); return; }
         tweet = JSON.parse(tweet);
-        
-        console.log(tweet); 
        
         var query = '?status=' + status + '&media_ids=' + media_id;
         oauth.post('https://api.twitter.com/1.1/statuses/update.json' + query,
@@ -354,16 +244,111 @@ var postMediaChunked = function(user, status, media, done){
             }
         );
     }
-}
+ }
 
-var postMediaSingle = function(user, status, media, done){   
-    function post(url, done){
-        oauth.post(url,
+// Sends an oAuth call to post a tweet.
+// Limit of 300 per 3 hours
+// @User = User Object containing Twitter ID, Token, and Secret
+// @Status = Text to be displayed in the tweet
+// @Media = URI to photo, gif, or video
+// @Multiple = Whether this should be a single tweet, or should create a reply chain
+// @Done = should be a callback with (err, tweetObj) (?)
+var imageExtensions = ['.jpg', '.png', '.webp'];
+var gifExtensions = ['.gif'];
+var videoExtensions = ['.mov','.mp4'];
+var postMediaSingle = function(user, status, media, multiple, done){
+    // https://developer.twitter.com/en/docs/media/upload-media/uploading-media/media-best-practices
+    
+    // Image must be proper extension,
+    // File Size <= 5 MB
+     
+    // Gif Frames <= 350
+    // Gif Pizels <= 300 million
+    // Gif File Size <= 15 MB
+    // Gif Res <= 1280x1080
+    // Use Media_Category = tweet_gif for Chunked Upload
+    
+    // Vid Duration .5 to 30 seconds 
+    // Vid Dimensions 32x32 to 1280x1024
+    // Vid Frame Rate <= 40 FPS
+    
+    // UseMedia_Category = twwet_video for chunked Upload
+    
+//    var fileLimitInMB = 0;
+//    try {
+//        var ext = path.extname(media)   
+//        if(imageExtensions.includes(ext)){
+//            fileLimitInMB = 5;
+//        } else if(gifExtensions.includes(ext)){
+//            fileLimitInMB = 15;  
+//        } else if(videoExtensions.includes(ext)){
+//            fileLimitInMB = 15;
+//        } else {
+//            // Invalid Extension...
+////            throw new Error()
+//        }
+//    } catch (err){
+//        done(err, null);
+//    }
+    
+    var readStream = fs.createReadStream(media);
+    var data;
+
+    readStream.on('end', upload);    
+    readStream.on('error', (err) => {
+        done(err, null);
+    });
+    readStream.on('data', (chunk) => {
+        if(data){ data = Buffer.concat([data, chunk], data.length + chunk.length); }
+        else { data = chunk; }
+    });
+    
+    function upload(){
+        data = data.toString('base64');
+        
+        var writeStream = fs.createWriteStream('data2.txt');
+        writeStream.write(data, () => {
+            console.log('Finished');
+        });
+        
+        oauth.post('https://upload.twitter.com/1.1/media/upload.json',
             user.twitter.token,
             user.twitter.tokenSecret,
-            '',
-            'application/x-www-form-urlencoded',
-            done
+            { media: data },
+            "",
+            tweet
+        );
+        //application/octet-stream
+    };
+
+    function tweet(err, results){
+        if(err) { done(createTwitterError(err), null); return; }
+        
+        results = JSON.parse(results);
+        var media_id = results.media_id_string;
+        
+        var leftover = null;
+        if(multiple){
+            leftover = status.substring(280);
+            status = status.substring(0, 280);
+        }
+        
+        oauth.post('https://api.twitter.com/1.1/statuses/update.json',
+            user.twitter.token,
+            user.twitter.tokenSecret,
+            { status: status, media_ids : media_id},
+            'application/json',
+            function(err, results, res){
+                if(err) { done(createTwitterError(err), null); }
+                else {
+                    results = JSON.parse(results);
+                    if(leftover && leftover !== ''){
+                        postReplyChain(user, leftover, results.id_str, done)
+                    } else {
+                        done(null, results);
+                    } 
+                }
+            }
         );
     }
 }
@@ -372,28 +357,141 @@ var postMediaSingle = function(user, status, media, done){
 // Limit of 300 per 3 hours
 // @User = User Object containing Twitter ID, Token, and Secret
 // @Status = Text to be displayed in the tweet
+// @Multiple = Whether this should be a single tweet, or should create a reply chain
 // @Done = should be a callback with (err, tweetObj) 
-var postTweet = function(user, status, done){
+var postTweet = function(user, status, multiple, done){
+    var leftover = null;
+    if(multiple){
+        leftover = status.substring(280);
+        status = status.substring(0, 280);
+    }  
+    
+    oauth.post('https://api.twitter.com/1.1/statuses/update.json',
+        user.twitter.token,
+        user.twitter.tokenSecret,
+        { status: status},
+        'application/json',
+        function(err, results, res){
+            if(err) { done(createTwitterError(err), null); }
+            else {
+                results = JSON.parse(results);
+                console.log('First Tweet');
+                if(leftover && leftover !== ''){
+                    postReplyChain(user, leftover, results.id_, done)
+                } else {
+                    done(null, results);
+                } 
+            }
+        }
+    );
+}
+
+// Sends an oAuth call to post a tweet.
+// Limit of 300 per 3 hours
+// @User = User Object containing Twitter ID, Token, and Secret
+// @Status = Text to be displayed in the tweet
+// @ReplyTo = Tweet ID to reply to. NOTE, the tweet must include @username of the original author
+// @Multiple = Whether this should be a single tweet, or should create a reply chain
+// @Done = should be a callback with (err, tweetObj) 
+var postReply = function(user, status, replyTo, multiple, done){
+    var leftover = null;
+    if(multiple){
+        leftover = status.substring(280);
+        status = status.substring(0, 280);
+    } 
+    var query = 'status=' + status + '&in_reply_to_status_id=' + replyTo;
     oauth.post('https://api.twitter.com/1.1/statuses/update.json?status='+status,
         user.twitter.token,
         user.twitter.tokenSecret,
         '',
         'application/json',
         function(err, results, res){
-            if(err) { done(err, null); }
+            if(err) { done(createTwitterError(err), null); }
             else {
                 results = JSON.parse(results);
-                done(null, results);
+                if(leftover){
+                    postReply(user, leftover, results.id_str, multiple, done)
+                } else {
+                    done(null, results);
+                }
             }
         }
     );
 }
 
+// Creates a reply chain with the status given. 
+// Note: ReplyTo should be a Tweet ID to the current user's tweets
+// @User = User Object containing Twitter ID, Token, and Secret
+// @Status = Text to be displayed in the tweet
+// @ReplyTo = Tweet ID to reply to. 
+// @Done = should be a callback with (err, tweetObj) 
+var postReplyChain = function(user, status, replyTo, done){
+    var leftover = null;
+//    var username = oauth._encodeData('@' + user.twitter.username);
+    var username = '@' + user.twitter.username;
+    leftover = status.substring(280 - username.length);
+    status = username + ' ' + status.substring(0, 280 - username.length-2);
+
+    oauth.post('https://api.twitter.com/1.1/statuses/update.json',
+        user.twitter.token,
+        user.twitter.tokenSecret,
+        {status: status, in_reply_to_status_id: 1052647238025891841},
+        'application/json',
+        function(err, results, res){
+            if(err) { done(createTwitterError(err), null); }
+            else {
+                results = JSON.parse(results);
+                console.log('Second Tweet');
+                if(leftover && leftover !== ''){
+                    postReplyChain(user, leftover, results.id, done)
+                } else {
+                    done(null, results);
+                }
+            }
+        }
+    );
+}
+
+// Takes in a Twitter response and returns a properly formated error.
+var createTwitterError = function(twitterRes){
+    // Example Error Response
+//    { statusCode: 404,
+//  data:
+//   '{"errors":[{"code":8,"message":"No data available for specified ID."}]}' }
+    
+    // OR
+    
+    // '{"request":"\\/1.1\\/media\\/upload.json","error":"media type unrecognized."}'
+    console.log(twitterRes);
+    var data = JSON.parse(twitterRes.data);
+    
+    var error = {
+        code: 0,
+        message: ''
+    };
+    
+    error.code = 4;
+    
+    if(data.errors) {
+        error.message = data.errors[0].code + ': ' + data.errors[0].message;
+        for(var i = 1; i < data.errors.length; i++){
+            error.message += '\n' + data.errors[i].code + ': ' + data.errors[i].message;
+        } 
+    }else {
+        error.message = data.error;
+    }   
+    
+    return error;
+}
+
 // Return an object with service methods to make oAuth calls
 exports.Service = {
+    getReplies: getReplies,
     getTweet: getTweet,
+    getTimeline: getTimeline,
     postTweet: postTweet,
-    postMedia: postMediaSingle
+    postMedia: postMediaSingle,
+    postReply: postReply
 }
 
 // Return a function to setup Authentcation

@@ -21,14 +21,8 @@ namespace EasyMarketingInUnity {
             Authenticated = false;
         }
 
-        public bool CheckAuthentication(JObject obj) {
-            // Search for Error Token
-            var errorToken = obj["error"];
-
-            // ErrorToken is null -> No Errors
-            // ErrorToken: null -> No Errors
-            Authenticated = errorToken == null || (errorToken.ToString() == "" || errorToken.ToString() == "null");
-            return Authenticated;
+        public bool CheckAuthentication(ServerObject serverObj) {
+            return Authenticated = (serverObj.errorCode == 0);
         }
     }
 }

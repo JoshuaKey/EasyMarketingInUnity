@@ -2,6 +2,10 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
+using EasyMarketingInUnityBasic;
+using System.Threading;
 
 namespace EasyMarketingInUnity {
     public enum GridLayout {
@@ -16,119 +20,111 @@ namespace EasyMarketingInUnity {
 
         [MenuItem("Window/Easy Marketing in Unity/Post", priority = 1)]
         public static void ShowWindow() {
-            //PostingWindow window = EditorWindow.GetWindowWithRect<PostingWindow>(new Rect(50, 50, 300, 300),false, "Post", true);
             PostingWindow window = EditorWindow.GetWindow<PostingWindow>(false, "Post", true);
             window.Init();
             window.Show();
+
         }
 
+        // Setup
         private bool isInitialized = false;
-        //private float height;
-        //private float width;
-        //private float widthScale;
-        //private float heightScale;
 
+        // Category
         private string[] toolbarChoice = new string[] { "General", "Specific" };
         private int toolbarSelection = 0;
 
+        // Posting Text
         private string postingText = "";
-        //private float postingHeight = 75;
-        //private float postingSpace = 5;
-
-        private Texture attachImage = null;
-        private string attachFile = "";
-        private int attachFileCharLim = 25;
-        private string[] attachFileExtensions = new string[] { "Image Files", "png,jpeg,jpg,tif,bmp", "Gif Files", "gif", "Video Files", "avi,flv,wmv,mov,mp4", "All Files", "png,jpeg,jpg,tif,bmp,gif,avi,flv,wmv,mov,mp4" };
-        //private float attachBtnSize = 20;
-        //private float attachSpace = 10;
-        //private float attachGap = 5;
-
         private string postResult = "";
 
-        Dictionary<string, Texture> authTextures;
-        //GUIContent[] authenticatorContent;
+        // Atachment
+        private Texture attachImage = null;
+        private string attachFile = "";
+        private string[] attachFileExtensions = new string[] { "Image Files", "png,jpeg,jpg,tif,bmp", "Gif Files", "gif", "Video Files", "avi,flv,wmv,mov,mp4", "All Files", "png,jpeg,jpg,tif,bmp,gif,avi,flv,wmv,mov,mp4" };
 
+        // Other
+        Dictionary<string, Texture> authTextures;
+
+        System.Diagnostics.Process process;
         private void Init() {
             if (isInitialized) { return; }
 
-            //this.minSize = new Vector2(150, 150);
-            //this.maxSize = new Vector2(1000, 1000);
+            Server.RESET_SERVER();
+            Server.StartServer();
+
+            //ServerBasic.StartServer();
+
+            //string dir = "C:/Users/Flameo326/Documents/IDEs/Unity/Capstone/EasyMarketingInUnityExpress/";
+            //string file = "Start.bat";
+
+            //System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            //startInfo.FileName = "\"" + dir + file + "\"";
+            //startInfo.Arguments = 3000 + " ";
+            //process = System.Diagnostics.Process.Start(startInfo);
+
 
             attachImage = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Editor/Textures/Attachment.png");
-            if (attachImage == null) { Debug.Log("Could not find Attachment Image"); }
-
-            Server.SetupGenericAuthenticators();
-            Authenticator[] authenticators = Server.GetAuthenticators();
-            authTextures = new Dictionary<string, Texture>();
-            for (int i = 0; i < authenticators.Length; i++) {
-                string name = authenticators[i].Name;
-                Texture texture = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Editor/Textures/" + name + ".png");
-
-                authTextures.Add(name, texture);
-            }
-
-            //authenticatorContent = new GUIContent[authenticators.Length];
+            if (attachImage ==  null) { Debug.Log("Could not find Attachment Image"); }
+            //Authenticator[] authenticators = Server.Instance.GetAuthenticators();
+            //authTextures = new Dictionary<string, Texture>();
             //for (int i = 0; i < authenticators.Length; i++) {
-            //    authenticatorContent[i] = new GUIContent();
-
             //    string name = authenticators[i].Name;
             //    Texture texture = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Editor/Textures/" + name + ".png");
 
-            //    authenticatorContent[i].tooltip = name;
-            //    authenticatorContent[i].text = name;
-            //    if (texture == null) {
-            //        Debug.Log("Could not find Assets/Editor/Textures/" + name + ".png");
-            //    } else {
-            //        authenticatorContent[i].image = texture;
-            //    }
-            //}
-
-            //Texture twitterImage = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Editor/Textures/Twitter.png");
-            //Texture facebookImage = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Editor/Textures/Facebook.png");
-
-            //authenticatorContent = new GUIContent[2];
-            //authenticatorContent[0] = new GUIContent();
-            //authenticatorContent[1] = new GUIContent();
-
-            //authenticatorContent[0].
-
-            //authenticatorContent[0].tooltip = "Twitter";
-            //authenticatorContent[0].text = "Twitter";
-            //if (twitterImage != null) {
-            //    authenticatorContent[0].image = twitterImage;
-            //} else {
-            //    authenticatorContent[0].text = "Twitter";
-            //    Debug.Log("Could not find Twitter Image");
-            //}
-
-            //authenticatorContent[1].tooltip = "Facebook";
-            //authenticatorContent[1].text = "Facebook";
-            //if (facebookImage != null) {
-            //    authenticatorContent[1].image = facebookImage;
-            //} else {
-            //    authenticatorContent[1].text = "Facebook";
-            //    Debug.Log("Could not find Facebook Image");
+            //    authTextures.Add(name, texture);
             //}
 
             isInitialized = true;
         }
-        private void Destroy() {
-            attachImage = null;
-
-
-            EditorUtility.UnloadUnusedAssetsImmediate();
+        private void OnDestroy() {
+            Debug.Log("Destroy Called");
 
             isInitialized = false;
+
+            attachImage = null;
+            authTextures = null;
+
+            //ServerBasic.EndServer();
+
+            Server.EndServer();
+            /*
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:3000/cmd/Shutdown");
+                request.Method = "GET";
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                    using (Stream stream = response.GetResponseStream()) {
+                        using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+
+                            Debug.Log(reader.ReadToEnd());
+                        }
+                    }
+                }
+                if (process.Responding) {
+                    //action = "Closing";
+                    Debug.Log("Process is Responding");
+
+                    //Thread.Sleep(500); // Wait for Potential Close
+                }
+                Debug.Log("Closing Main Window");
+                process.CloseMainWindow();
+                if (!process.HasExited) {
+                    Debug.Log("Killing Process");
+                    process.Kill();
+                    //Thread.Sleep(500); // Wait for Potential Close
+                    process.WaitForExit();
+                } else {
+                    Debug.Log("Process has not exited");
+                }
+
+                int ExitCode = process.ExitCode;
+                Debug.Log("Exit Code: " + ExitCode);
+            }
+            */
+            EditorUtility.UnloadUnusedAssetsImmediate();
         }
 
         private void OnGUI() {
-            //width = this.position.width;
-            //height = this.position.height;
-            //widthScale = width / this.minSize.x;
-            //heightScale = height / this.minSize.y;
-            //Debug.Log(this.minSize + " " + this.maxSize);
-            //Debug.Log(width + " (" + widthScale + ") " + height + " (" + heightScale + ")");
-
             toolbarSelection = GUILayout.Toolbar(toolbarSelection, toolbarChoice, GUILayout.ExpandWidth(true));
 
             if (toolbarSelection == 0) {
@@ -158,12 +154,6 @@ namespace EasyMarketingInUnity {
                 GUIContent attachBtnContent = new GUIContent(attachImage, "Upload a Photo, Gif or Video");
                 if (GUILayout.Button(attachBtnContent, GUILayout.Height(25), GUILayout.Width(25))) {
                     attachFile = EditorUtility.OpenFilePanelWithFilters("Select an Image, Gif or Video", "", attachFileExtensions);
-                    //while (attachFile.Length > attachFileCharLim) {
-                    //    int index = attachFile.IndexOf('/');
-                    //    if (index > -1) {
-                    //        attachFile = attachFile.Substring(index + 1);
-                    //    } else { break; }
-                    //}
                 }
 
                 GUILayout.Space(10);
@@ -179,13 +169,35 @@ namespace EasyMarketingInUnity {
                 GUILayout.EndHorizontal();
             }
 
-            // Post Buttn
+            // Post Button
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button("Post")) {
-                    postResult = Random.Range(0, 2) == 1 ? "Post Successful!" : "Errors Detected";
+                    //Debug.Log(ServerBasic.SendRequest());
+
+                    if (Server.Instance.GetAuthenticator("Twitter").Authenticated) {
+                        ServerObject obj = Server.Instance.SendRequest("Twitter", HTTPMethod.Get);
+                        postResult = obj.displayMessage;
+                        Debug.Log(obj);
+                    } else {
+                        ServerObject obj = Server.Instance.SendRequest("Twitter", HTTPMethod.Authenticate);
+                        postResult = obj.displayMessage;
+                        Debug.Log(obj);
+                    }
+
+                    //HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:3000/cmd/Twitter/Get");
+                    //request.Method = "GET";
+
+                    //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                    //    using (Stream stream = response.GetResponseStream()) {
+                    //        using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+                    //            postResult = reader.ReadToEnd();
+                    //            Debug.Log(postResult);
+                    //        }
+                    //    }
+                    //}
                 }
 
                 GUILayout.FlexibleSpace();
