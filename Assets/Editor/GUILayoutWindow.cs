@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GUILayoutWindow : EditorWindow {
 
-    [MenuItem("Window/Easy Marketing in Unity/GUI Layout Window")]
+    //[MenuItem("Window/Easy Marketing in Unity/GUI Layout Window")]
     public static void ShowWindow() {
         // Utility - Wether it should be floating or not
         // Title

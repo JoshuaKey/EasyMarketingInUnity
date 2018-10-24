@@ -10,15 +10,15 @@ namespace EasyMarketingInUnity {
         const string openTwitterWindowHotKey = "&5";
         //"Window/Easy Marketing in Unity/Twitter Window " + 
 
-        [MenuItem("Window/Easy Marketing in Unity/Twitter Window " + openTwitterWindowHotKey)]
+        //[MenuItem("Window/Easy Marketing in Unity/Twitter Window " + openTwitterWindowHotKey)]
         public static void ShowWindow() {
             TwitterWindow window = EditorWindow.GetWindow<TwitterWindow>(false, "Twitter Window", true);
             window.Show();
         }
 
         // SERVER ----------------------------------------------
-        private bool m_prevServerStatus = false;
-        private bool m_currServerStatus = false;
+        //private bool m_prevServerStatus = false;
+        //private bool m_currServerStatus = false;
         private void OnGUI() {
             //Layout.GUICenter(() => {
             //    if(GUILayout.Button("Reset Everything")) {
@@ -66,8 +66,8 @@ namespace EasyMarketingInUnity {
         }
 
         // TWITTER -------------------------------------------
-        private string m_tweet = "";
-        private string m_response = "";
+        //private string m_tweet = "";
+        //private string m_response = "";
         void TwitterGUI() {
             //    Authenticator twitter = Server.Instance.GetAuthenticator("Twitter");
             //    string name = "Twitter";

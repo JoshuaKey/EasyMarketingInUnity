@@ -45,7 +45,7 @@ namespace EasyMarketingInUnity {
         /// <param name="debug">Whether or not the Process should be shown, and wether to log Data</param>
         /// <param name="port">Which port to run the Server on</param>
         /// <returns>True if creating the server was successful, or the server was already started</returns>
-        public static bool StartServer(int port = 3000, bool debug = false) {
+        public static bool StartServer(int port = 3000, bool debug = true) {
             Server.Log("Attempting to Start Server");
             if (CheckServer()) {
                 if (!EndServer()) {
@@ -430,14 +430,17 @@ namespace EasyMarketingInUnity {
             }
             AddGenericAuthenticator("Twitter");
             AddGenericAuthenticator("Facebook");
-            AddGenericAuthenticator("Google Plus");
-            AddGenericAuthenticator("Youtube");
-            AddGenericAuthenticator("Itch");
             AddGenericAuthenticator("Discord");
+
             AddGenericAuthenticator("Reddit");
-            AddGenericAuthenticator("VK");
             AddGenericAuthenticator("Slack");
             AddGenericAuthenticator("Instagram");
+
+            AddGenericAuthenticator("Youtube");
+            AddGenericAuthenticator("Itch");
+            AddGenericAuthenticator("VKontakte");
+
+            AddGenericAuthenticator("Google Plus");
         }
         /// <summary>
         /// For Internal use only
