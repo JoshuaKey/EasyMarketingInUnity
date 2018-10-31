@@ -44,21 +44,14 @@ namespace EasyMarketingInUnityConsole {
         }
 
         static void Main(string[] args) {
+            //Server.exe = "easymarketinginunityexpress-win.exe";
+            //Server.exe = "StartExe.bat";
+
             int bufSize = 1024;
             Stream inStream = Console.OpenStandardInput(bufSize);
             Console.SetIn(new StreamReader(inStream, Console.InputEncoding, false, bufSize));
 
-            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:3000/cmd/Shutdown");
-            //request.Method = "GET";
-            //using (HttpWebResponse response = GetResponse(request)) {
-            //    using (Stream stream = response.GetResponseStream()) {
-            //        using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
-            //            Console.WriteLine(reader.ReadToEnd());
-            //        }
-            //    }
-            //}
-
-            if (EasyMarketingInUnity.Server.StartServer()) {
+            if (EasyMarketingInUnity.Server.StartServer(3000, false)) {
 
                 while (EasyMarketingInUnity.Server.CheckServer()) {
                     ServerObject serverObj = null;

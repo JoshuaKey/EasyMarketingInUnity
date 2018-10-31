@@ -19,6 +19,9 @@ namespace EasyMarketingInUnity {
     [Serializable]
     public class Server : IDisposable {
 
+        public delegate void OnLog(string message);
+        public static OnLog onLog;
+
         [NonSerialized] private Process process;
         [NonSerialized] private bool onExitCalled;
         //private int previousID;
@@ -31,7 +34,10 @@ namespace EasyMarketingInUnity {
         private List<Authenticator> authenticators = null;
         public static string saveFile = "server.dat";
         public static string logFile = "server.log";
+        public static string directory = "C:/Users/Flameo326/Documents/IDEs/Unity/Capstone/EasyMarketingInUnityExpress/";
+        public static string exe = "Start.bat";
         public static Server Instance = null;
+
         static readonly object Lock = new object();
 
         private Server() { }
@@ -64,17 +70,14 @@ namespace EasyMarketingInUnity {
                 port = Instance.port;
             }
 
-            string dir = "C:/Users/Flameo326/Documents/IDEs/Unity/Capstone/EasyMarketingInUnityExpress/";
-            string file = "Start.bat";
-
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "\"" + dir + file + "\"";
+            startInfo.FileName = "\"" + directory + exe + "\"";
             startInfo.Arguments = port + " ";
-            if (debug) {
+            if (!debug) {
                 startInfo.CreateNoWindow = true;
                 startInfo.UseShellExecute = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                startInfo.WorkingDirectory = dir;
+                startInfo.WorkingDirectory = directory;
             }
 
             // Cleanup Previous Process
@@ -95,7 +98,8 @@ namespace EasyMarketingInUnity {
                 Server.Log("Process Failed\n\t" + e);
                 return false;
             }
-            Server.Log("Process Running");
+            Server.Log("Process Running (pID: " + Instance.process.Id + ")");
+
 
             SaveServer();
 
@@ -223,10 +227,6 @@ namespace EasyMarketingInUnity {
                 return success;
             }
         }
-        public static void RESET_SERVER() {
-            Server.Log("RESETING");
-            Instance = null;
-        }
         
         private static void OnExit(object sender, System.EventArgs e) {
             var thread = new Thread(() => {
@@ -277,6 +277,53 @@ namespace EasyMarketingInUnity {
             //        Server.Log("Error finding Processes:\n\t" + e);
             //    }
             //}
+        }
+
+        /// <summary>
+        /// This method kills all processes that are listening to a specific port.
+        /// THIS CAN BE DANGEROUS.
+        /// Only use this method if Server Status is Invalid/Bad, The service does not work, and restarting Unity does not work.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public static bool KillServers(int port) {
+            List<int> ids = new List<int>();
+
+            Server.Log("Attempting to kill Processes at Port: " + port);
+
+            foreach (ProcessPort p in ProcessPorts.ProcessPortMap.FindAll(x => x.PortNumber == port)) {
+                ids.Add(p.ProcessId);
+                Server.Log("Found Process: " + p.ProcessName + " (" + p.ProcessId + ") @Port: " + p.PortNumber);
+            }
+
+            if(ids.Count == 0) {
+                Server.Log("No Processes found");
+                return true;
+            }
+
+            Server.Log("Killing Processes");
+            foreach (var p in Process.GetProcesses()) {
+                if (ids.Contains(p.Id)) {
+                    p.Kill();
+                    p.WaitForExit();
+                    break;
+                }
+            }
+
+            bool success = true;
+            foreach (var p in Process.GetProcesses()) {
+                if (ids.Contains(p.Id)) {
+                    success = false;
+                    Server.Log("Process: " + p.ProcessName + " (" + p.Id + ") has not been killed.");
+                }
+            }
+
+            if (success) {
+                Server.Log("Killing Succeeded");
+            } else {
+                Server.Log("Killing Failed");
+            }
+            return success;
         }
 
         /// <summary>
@@ -342,6 +389,9 @@ namespace EasyMarketingInUnity {
                 string time = DateTime.UtcNow.ToString("h:mm:ss.fff tt");
                 string log = type + " [" + time + "] : " + message + "\n";
                 File.AppendAllText(logFile, log);
+
+                onLog?.Invoke(log);
+
             } catch (IOException e) {
                 return false;
             } catch (NotSupportedException e) {
@@ -366,7 +416,7 @@ namespace EasyMarketingInUnity {
         /// Relies on CheckServer
         /// </summary>
         /// <returns>True if the process is still running in the background</returns>
-        private static bool IsResponding() {
+        public static bool IsResponding() {
             bool status = CheckServer();
             if (status) {
                 try {
@@ -395,7 +445,7 @@ namespace EasyMarketingInUnity {
         /// Checks if the process has ended. Just because the prcoess isn't functioning doesn't mean it has ended
         /// </summary>
         /// <returns></returns>
-        private static bool HasEnded() {
+        public static bool HasEnded() {
             bool status = CheckServer();
             if (status) {
                 try {
