@@ -4,6 +4,8 @@ The goal of this plugin is to enable more developers to market their games more.
 
 Easy Marketing in Unity is **NOT** a replacement for these sites
 
+Join our [Discord](https://discord.gg/kutnBvh)
+
 ## What it Contains
 Easy Marketing In Unity comes with 4 folders
 
