@@ -2,18 +2,24 @@ INSTRUCTIONS
 --------------------------------------------
 1.) Find the Repository at https://github.com/JoshuaKey/EasyMarketingInUnity
 
-2.) Downaload the Zip file (Plugin.zip)
+2.) Download the Zip file (EasyMarketingInUnity.zip)
 
 3.) Unzip the file
 
-4.) Paste the EasyMarketingInUnity folder at the root of the Assets folder
+4.) Copy and Paste the EasyMarketingInUnity folder at the root of the Assets folder
 
 5.) Enjoy!
 --------------------------------------------
 
+ERRORS
+--------------------------------------------
+If you get "Opening File ... The process can not access the file because it is being used by another process."
+Just hit Cancel. Unity is being a baby because it can't access the file.
+--------------------------------------------
+
 FOLDERS
 --------------------------------------------
-Easy Marketing In Unity comes with 5 folders
+Easy Marketing In Unity comes with 4 folders
 
 Editor is responsible for all the code. You can look at it for inspiration, but it probably won't help.
 
