@@ -1,5 +1,5 @@
 # Easy Marketing in Unity
-Easy Marketing in Unity is a plugin which allows users to post to multiple Social Media Sites from within the Unity Editor. 
+Easy Marketing in Unity is a plugin which allows users to post to multiple Social Media Sites from within the Unity Editor. This includes text, photo, video and gif.
 The goal of this plugin is to enable more developers to market their games more.
 
 Easy Marketing in Unity is **NOT** a replacement for these sites
