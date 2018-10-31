@@ -13,6 +13,7 @@ Assets/AssetStoreTools*
 # EasyMarketingInUnity Specific Files
 *.dat
 *.log
+*.asset
 
 ExportedObj/
 .consulo/

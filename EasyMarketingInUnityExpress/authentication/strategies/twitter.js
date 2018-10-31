@@ -274,23 +274,6 @@ var postMediaSingle = function(user, status, media, multiple, done){
     
     // UseMedia_Category = twwet_video for chunked Upload
     
-//    var fileLimitInMB = 0;
-//    try {
-//        var ext = path.extname(media)   
-//        if(imageExtensions.includes(ext)){
-//            fileLimitInMB = 5;
-//        } else if(gifExtensions.includes(ext)){
-//            fileLimitInMB = 15;  
-//        } else if(videoExtensions.includes(ext)){
-//            fileLimitInMB = 15;
-//        } else {
-//            // Invalid Extension...
-////            throw new Error()
-//        }
-//    } catch (err){
-//        done(err, null);
-//    }
-    
     var readStream = fs.createReadStream(media);
     var data;
 

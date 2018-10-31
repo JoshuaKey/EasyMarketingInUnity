@@ -60,9 +60,14 @@ app.use(function(err, req, res, next) {
     
     console.log(req);
     console.log(err);
-    // var Res = require('./utility/response');
-    // Res.send500Response(res, err.code, err.name + ': ' + err.message)
-    res.render('errorPage', {error: err, errString: errString});
+    
+    if(req.path.includes("cmd")){
+        var Res = require('./utility/response');
+        Res.send500Response(res, err.code, err.name + ': ' + err.message)
+    } else {
+        res.render('errorPage', {error: err, errString: errString});
+    }    
+
 });
 
 module.exports = app;

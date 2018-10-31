@@ -4,12 +4,11 @@ cd "C:\Users\Flameo326\Documents\IDEs\Unity\Capstone\EasyMarketingInUnityExpress
 IF [%1]==[] (
      set PORT=3000
 ) ELSE (
-     set PORT=%1
+    set PORT=%1
 )
 
 ECHO "Port = %PORT%"
 
 npm start  || PAUSE
-
 
 @pause

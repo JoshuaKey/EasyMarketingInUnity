@@ -2,6 +2,10 @@
   "name": "easymarketinginunityexpress",
   "version": "0.0.0",
   "private": true,
+  "bin": "./bin/www",
+  "pkg": {
+    "assets": "views/*"
+  },
   "scripts": {
     "start": "node ./bin/www"
   },
