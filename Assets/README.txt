@@ -8,13 +8,15 @@ INSTRUCTIONS
 
 4.) Copy and Paste the EasyMarketingInUnity folder at the root of the Assets folder
 
-5.) Enjoy!
+5.) Open Window->EasyMarketingInUnity->Help
+
+6.) Enjoy!
 --------------------------------------------
 
 ERRORS
 --------------------------------------------
-If you get "Opening File ... The process can not access the file because it is being used by another process."
-Just hit Cancel. Unity is being a baby because it can't access the file.
+Error: "Opening File ... The process can not access the file because it is being used by another process."
+	Hit Cancel. Unity is being a baby because it can't access the file.
 --------------------------------------------
 
 FOLDERS
@@ -32,8 +34,6 @@ Textures contains all the textures used in the Plugin.
 
 NOTES
 --------------------------------------------
-
-
 Easy Marketing in Unity has plans to support many sites and many OSs
 
 Currently it only supports TWITTER and WINDOWS.
@@ -57,5 +57,3 @@ Notifications Settings
 Replying
 Liking
 --------------------------------------------
-
-

@@ -5,7 +5,7 @@ var cookieSession = require('cookie-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var httpLogger = require('morgan');
-var logger = require('./utility/logger');
+//var logger = require('./utility/logger');
 var uuid = require('uuid/v4');
 var FileStore = require('session-file-store')(session);
 
@@ -16,8 +16,8 @@ var cmdRouter = require('./routes/cmd');
 var app = express();
 var secret = 'ILoveMarketing';
 
-logger.info('\n------------------------------------------------------');
-logger.info('Starting server on port ' + (process.env.PORT || '3000'));
+console.log('\n------------------------------------------------------');
+console.log('Starting server on port ' + (process.env.PORT || '3000'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -53,7 +53,8 @@ app.use(function(err, req, res, next) {
         if( key == 'parent') { return "[Circular Reference]";}
         else {return value;}
     });
-    logger.error(errString);
+//    logger.error(errString);
+    console.log(errString);
 
     // render the error page
     res.status(err.status || 500);

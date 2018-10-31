@@ -253,27 +253,7 @@ var postMediaChunked = function(user, status, media, done){
 // @Media = URI to photo, gif, or video
 // @Multiple = Whether this should be a single tweet, or should create a reply chain
 // @Done = should be a callback with (err, tweetObj) (?)
-var imageExtensions = ['.jpg', '.png', '.webp'];
-var gifExtensions = ['.gif'];
-var videoExtensions = ['.mov','.mp4'];
-var postMediaSingle = function(user, status, media, multiple, done){
-    // https://developer.twitter.com/en/docs/media/upload-media/uploading-media/media-best-practices
-    
-    // Image must be proper extension,
-    // File Size <= 5 MB
-     
-    // Gif Frames <= 350
-    // Gif Pizels <= 300 million
-    // Gif File Size <= 15 MB
-    // Gif Res <= 1280x1080
-    // Use Media_Category = tweet_gif for Chunked Upload
-    
-    // Vid Duration .5 to 30 seconds 
-    // Vid Dimensions 32x32 to 1280x1024
-    // Vid Frame Rate <= 40 FPS
-    
-    // UseMedia_Category = twwet_video for chunked Upload
-    
+var postMediaSingle = function(user, status, media, multiple, done){  
     var readStream = fs.createReadStream(media);
     var data;
 

@@ -1,18 +1,55 @@
-** This is bold, just add \*\* **
-_ This is Italic, just add \_\_ _
+# Easy Marketing in Unity
+---
+Easy Marketing in Unity is a plugin that allows developers to post to multiple Social Media sites at once. 
+The goal of this plugin is to enable more developers to market their games more.
 
-# This is a Header, just add \# corresponding to amount
+## Instructions
+---
+1.) Find the Repository at https://github.com/JoshuaKey/EasyMarketingInUnity
 
-[This is an Inline Link](www.google.com)
-Simply add \[ and \] for text and \( and \) for the link.
+2.) Download the Zip file (EasyMarketingInUnity.zip)
 
-[This is a reference link][here]
-[here]: [www.google.com]
-Simply add \[ and \] for text and \[ and \] for the refernce.
-Then define the reference below as \[ Reference \] \: www.google.com
+3.) Unzip the file
 
-![Default Text](https://s3.amazonaws.com/media.expresswriters.com/wp-content/uploads/2015/09/03015921/google-logo-1500x841.jpg)
-Images function the same way as links but with \! in front
+4.) Copy and Paste the EasyMarketingInUnity folder at the root of the Assets folder
 
-[**CHEATSHEET**](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+5.) Open Window->EasyMarketingInUnity->Help
+
+6.) Enjoy!
+## Support
+---
+Easy Marketing in Unity currently Supports:
+OS:
+* Windows
+
+Sites:
+* Twitter
+
+Easy Marketing in Unity plans currently Supports:
+OS:
+* Windows
+* Mac
+* Linux
+
+Sites:
+* Twitter
+* Facebook
+* Reddit
+* Discord
+* Slack
+* Instagram
+* Youtube
+* Itch&#46;io
+* VKontakte
+* Google Plus
+## Errors
+---
+**Error:** "Opening File ... The process can not access the file because it is being used by another process."
+* Hit Cancel. Unity is being a baby because it can't access the file.
+
+## Contact
+---
+You can **Reports Bugs** on [Github](https://github.com/JoshuaKey/EasyMarketingInUnity) by making an Issue.
+You can contact me at my email, JoshJKey98@yahoo.com
+
 
