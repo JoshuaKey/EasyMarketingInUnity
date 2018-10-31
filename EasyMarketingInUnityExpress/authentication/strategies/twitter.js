@@ -121,6 +121,10 @@ var getReplies = function(user, tweet, done){
     );
 }
 
+var likeTweet = function(user, tweet, done){
+    
+}
+
 // Sends an oAuth call to post a tweet. - DOES NOT WORK, Because oAuth Sig needs to be changed
 // Limit of 300 per 3 hours
 // @User = User Object containing Twitter ID, Token, and Secret
