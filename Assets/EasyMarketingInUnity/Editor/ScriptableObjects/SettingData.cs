@@ -8,7 +8,7 @@ public class SettingData : ScriptableObject {
     // Settings
     public List<string> multiPosters = new List<string>();
     public bool initOnStartup;
-    public bool debugMode;
+    public bool debugMode = true;
     public int port = 3000;
     public bool performSyncRequests;
     public bool restartOnCrash;
@@ -21,6 +21,12 @@ public class SettingData : ScriptableObject {
     public string serverLogFile;
     public int responseDelay = 30000; // 30 Seconds
     // -------------
+
+    // Twitter
+    public bool twitterShowUserRetweets;
+    public bool twitterShowReplies = true;
+    public bool twitterShowUserReplies;
+    public bool twitterReplyChain;
 
     // General Settings???
     public Vector2 multiScroll;

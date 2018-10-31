@@ -25,10 +25,12 @@ namespace EasyMarketingInUnity {
         public static Texture unlikeImage { get; private set; }
         public static Texture horizontalImage { get; private set; }
         public static Texture verticalImage { get; private set; }
+        public static Texture refreshImage { get; private set; }
         public static Dictionary<string, Texture> authTextures { get; private set; }
 
         // Other
-        public static bool hasInit { get; private set; }
+        public static bool successfulInit { get; private set; }
+        public static System.Action onInit;
 
         static WindowData() {
             if (LoadSettings()) {
@@ -117,6 +119,10 @@ namespace EasyMarketingInUnity {
                     horizontalImage = AssetDatabase.LoadAssetAtPath<Texture>(path + "Horizontal.png");
                     if (horizontalImage == null) { Debug.Log("Could not find Horizontal Image"); }
                 }
+                if (refreshImage == null) {
+                    refreshImage = AssetDatabase.LoadAssetAtPath<Texture>(path + "Refresh.png");
+                    if (refreshImage == null) { Debug.Log("Could not find Refresh Image"); }
+                }
 
                 if (authTextures == null) {
                     Authenticator[] authenticators = Server.Instance.GetAuthenticators();
@@ -154,6 +160,7 @@ namespace EasyMarketingInUnity {
             Server.logFile = settingData.serverLogFile + "\\" + GetSortableDate() + ".log";
             Server.saveFile = settingData.serverSaveFile + "\\server.dat";
             if (settingData.debugMode) {
+                Server.onLog -= Log;
                 Server.onLog += Log;
             }
 
@@ -161,7 +168,12 @@ namespace EasyMarketingInUnity {
         }
 
         public static void Init() {
-            if (Server.CheckServer()) { return; }
+            if (Server.CheckServer()) {
+                if (onInit != null) {
+                    onInit();
+                }
+                return;
+            }
 
             LoadSettings();
 
@@ -171,10 +183,18 @@ namespace EasyMarketingInUnity {
             if (!Server.StartServer(settingData.port, settingData.debugMode)) {
                 EditorApplication.delayCall -= Init;
                 EditorApplication.delayCall += Init;
+
+                successfulInit = false;
             } else {
                 EditorApplication.quitting += Shutdown;
 
-                WindowData.Load();
+                WindowData.Load();               
+
+                successfulInit = true;
+
+                if (onInit != null) {
+                    onInit();
+                }
             }
         }
         public static void Restart() {
@@ -209,6 +229,8 @@ namespace EasyMarketingInUnity {
 
             Server.Log("SHUTING DOWN UNITY");
             Server.EndServer();
+
+            successfulInit = false;
         }
 
         public static void Log(string message) {

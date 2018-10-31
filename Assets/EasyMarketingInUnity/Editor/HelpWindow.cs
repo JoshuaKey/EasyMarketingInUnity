@@ -13,13 +13,15 @@ namespace EasyMarketingInUnity {
         [MenuItem("Window/Easy Marketing in Unity/Help", priority = 2003)]
         public static void ShowWindow() {
             HelpWindow window = EditorWindow.GetWindow<HelpWindow>(false, "Help", true);
-            window.Init();
+            WindowData.onInit += window.Init;
+            WindowData.Init();
             window.Show();
         }
 
         private void Init() {
-            WindowData.Init();
             data = WindowData.helpData;
+
+            WindowData.onInit -= this.Init;
         }
 
         private void OnGUI() {
@@ -112,7 +114,7 @@ namespace EasyMarketingInUnity {
                 // Structure
                 WindowUtility.FadeWithFoldout(ref data.structureBool, "Structure", () => {
                     WindowUtility.Horizontal(() => {
-                        string text = "\nEasy Marketing In Unity uses 3 components, <b>Unity</b>, <b>DLL</b>, and the <b>Server</b>.";
+                        string text = "\nEasy Marketing In Unity uses 3 components <b>Unity</b>, <b>DLL</b>, and the <b>Server</b>.";
                         text += "\n\n<b>Unity</b> allows for displaying UI and receiving User Interaction.";
                         text += "\n\nThe <b>DLL</b> acts as a medium for interacting with the Server.";
                         text += "\n\nThe <b>Server</b> allows users to perform API calls to each site.";

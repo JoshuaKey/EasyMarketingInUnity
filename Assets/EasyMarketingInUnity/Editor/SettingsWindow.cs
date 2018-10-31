@@ -11,13 +11,15 @@ namespace EasyMarketingInUnity {
         [MenuItem("Window/Easy Marketing in Unity/Settings", priority = 2002)]
         public static void ShowWindow() {
             SettingsWindow window = EditorWindow.GetWindow<SettingsWindow>(false, "Settings", true);
-            window.Init();
+            WindowData.onInit += window.Init;
+            WindowData.Init();
             window.Show();
         }
 
         private void Init() {
-            WindowData.Init();
             data = WindowData.settingData;
+
+            WindowData.onInit -= this.Init;
         }
 
         private void OnGUI() {
@@ -310,7 +312,24 @@ namespace EasyMarketingInUnity {
                 WindowUtility.Horizontal(() => {
                     GUILayout.Box("Videos...");
                 }, 20, 20);
-            });      
+            });
+
+            WindowUtility.Horizontal(() => {
+                data.twitterShowReplies = GUILayout.Toggle(data.twitterShowReplies, "Show Replies");
+            }, 30, 10);
+
+            WindowUtility.Horizontal(() => {
+                data.twitterShowUserReplies = GUILayout.Toggle(data.twitterShowUserReplies, "Show User Replies");
+            }, 30, 10);
+
+            WindowUtility.Horizontal(() => {
+                data.twitterShowUserRetweets = GUILayout.Toggle(data.twitterShowUserRetweets, "Show User Retweets");
+            }, 30, 10);
+
+            WindowUtility.Horizontal(() => {
+                GUIContent content = new GUIContent("Create Reply chains", "Reply Chains are multiple tweets that reply to the previous Tweet to create a long message.");
+                data.twitterReplyChain = GUILayout.Toggle(data.twitterReplyChain, content);
+            }, 30, 10);
         }
         private void DisplayDiscordSettings() {
 

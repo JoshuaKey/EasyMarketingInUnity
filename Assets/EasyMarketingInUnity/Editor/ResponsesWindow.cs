@@ -15,12 +15,12 @@ namespace EasyMarketingInUnity {
         [MenuItem("Window/Easy Marketing in Unity/Responses", priority = 2001)]
         public static void ShowWindow() {
             ResponsesWindow window = EditorWindow.GetWindow<ResponsesWindow>(false, "Responses", true);
-            window.Init();
+            WindowData.onInit += window.Init;
+            WindowData.Init();
             window.Show();
         }
 
         private void Init() {
-            WindowData.Init();
             data = WindowData.responseData;
             settings = WindowData.settingData;
 
@@ -28,11 +28,13 @@ namespace EasyMarketingInUnity {
             for (int i = 0; i < authenticators.Length; i++) {
                 var auth = authenticators[i];
 
-                data.authDelay[auth.Name] = 0;
-                data.authResponses[auth.Name] = null;
+                data.authDelay.Add(new KeyValuePair<string, float>(auth.Name, 0));
+                data.authResponses.Add(new KeyValuePair<string, List<ResponseData.Message>>(auth.Name, null));
 
                 data.authBools.Add(new AnimBool());
             }
+
+            WindowData.onInit -= this.Init;
         }
 
         private void OnGUI() {
@@ -81,9 +83,7 @@ namespace EasyMarketingInUnity {
             GUILayout.Space(10);
             WindowUtility.DrawLine(1);
 
-            WindowUtility.Scroll(ref data.scrollPos, () => {
-                
-
+            WindowUtility.Scroll(ref data.scrollPos, () => {              
                 var authenticators = Server.Instance.GetAuthenticators();
                 for (int i = 0; i < authenticators.Length; i++) {
                     string name = authenticators[i].Name;
@@ -93,7 +93,6 @@ namespace EasyMarketingInUnity {
                     GUILayout.Space(10);
                     WindowUtility.DrawLine(1);
                 }           
-
             }, true);
 
             foldout.fixedWidth = fixedWidth;
@@ -149,25 +148,16 @@ namespace EasyMarketingInUnity {
                 // Post Button
                 WindowUtility.Horizontal(() => {
                     if (GUILayout.Button("Post")) {
-                        data.replyResult = "Hi";
+                        data.replyResult = "";
 
-                        //string query = "status=" + data.replyText;
-                        //if (data.replyFile != "") {
-                        //    query += "&media=" + data.replyFile;
-                        //}
+                        string query = PostingWindow.CreatePostQuery(data.replyToMessage.site, data.replyText, data.replyFile);
 
-                        //for (int i = 0; i < settings.multiPosters.Count; i++) {
-                        //    string auth = settings.multiPosters[i];
+                        var res = Server.Instance.SendRequest(data.replyToMessage.site, HTTPMethod.Post, query);
 
-                        //    var res = Server.Instance.SendRequest(auth, HTTPMethod.Post, query);
-                        //    if (settings.debugMode) {
-                        //        Debug.Log(res);
-                        //    }
-
-                        //    data.replyResult += auth + ": " + res.displayMessage + "\n";
-                        //}
-                        //data.replyText = "";
-                        //data.replyFile = "";
+                        data.replyResult = res.displayMessage + "\n";
+                        
+                        data.replyText = "";
+                        data.replyFile = "";
                     }
                 });
 
@@ -179,7 +169,21 @@ namespace EasyMarketingInUnity {
         }
 
         private void DisplaySite(string name, ref AnimBool val) {
-            WindowUtility.FadeWithFoldout(ref val, name, () => {
+            AnimBool tempVal = val;
+            WindowUtility.Horizontal(() => {
+                bool target = tempVal.target;
+                tempVal.target = WindowUtility.Foldout(ref target, name);
+
+                GUILayout.FlexibleSpace();
+
+                if(GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))){
+                    CheckResponses(name, true);
+                }
+            }, 5, 10);
+            val = tempVal;
+
+
+            WindowUtility.Fade(val.faded, () => {
                 GUILayout.Space(10);
 
                 if (WindowData.IMPLEMENTED_AUTHENTICATORS.Contains(name)) {
@@ -213,37 +217,38 @@ namespace EasyMarketingInUnity {
         }
 
         private void DisplayMessages(string name) {
-            if (!data.authDelay.ContainsKey(name) || EditorApplication.timeSinceStartup > data.authDelay[name]) {
-                data.authDelay[name] = (float)EditorApplication.timeSinceStartup + settings.responseDelay / 1000f;
-                data.authResponses[name] = GetResponses(name);
+            CheckResponses(name);
+
+             // Random Jumbo
+            {
+                //if (!data.authResponses.ContainsKey(name) || data.authResponses[name] == null) {
+                //    ResponseData.Message[] temp = new ResponseData.Message[4];
+                //    temp[0] = new ResponseData.Message();
+                //    temp[0].liked = true;
+                //    temp[0].message = "Hello";
+                //    temp[0].name = "Joshua Key";
+
+                //    temp[1] = new ResponseData.Message();
+                //    temp[1].liked = true;
+                //    temp[1].message = "This is a potato... Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah...";
+                //    temp[1].name = "Joshua Key";
+
+                //    temp[2] = new ResponseData.Message();
+                //    temp[2].liked = false;
+                //    temp[2].isReply = true;
+                //    temp[2].message = "Acutally I'm just a kid...";
+                //    temp[2].name = "Its a Kid";
+
+                //    temp[3] = new ResponseData.Message();
+                //    temp[3].liked = false;
+                //    temp[3].isReply = true;
+                //    temp[3].message = " Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah...";
+                //    temp[3].name = "Its a Kid";
+                //    data.authResponses[name] = temp;
+                //}
             }
 
-            //if (!data.authResponses.ContainsKey(name) || data.authResponses[name] == null) {
-            //    ResponseData.Message[] temp = new ResponseData.Message[4];
-            //    temp[0] = new ResponseData.Message();
-            //    temp[0].liked = true;
-            //    temp[0].message = "Hello";
-            //    temp[0].name = "Joshua Key";
-
-            //    temp[1] = new ResponseData.Message();
-            //    temp[1].liked = true;
-            //    temp[1].message = "This is a potato... Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah...";
-            //    temp[1].name = "Joshua Key";
-
-            //    temp[2] = new ResponseData.Message();
-            //    temp[2].liked = false;
-            //    temp[2].isReply = true;
-            //    temp[2].message = "Acutally I'm just a kid...";
-            //    temp[2].name = "Its a Kid";
-
-            //    temp[3] = new ResponseData.Message();
-            //    temp[3].liked = false;
-            //    temp[3].isReply = true;
-            //    temp[3].message = " Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah...";
-            //    temp[3].name = "Its a Kid";
-            //    data.authResponses[name] = temp;
-            //}
-            List<ResponseData.Message> messages = data.authResponses[name];
+            List<ResponseData.Message> messages = data.authResponses.Find(x => x.Key == name).Value;
 
             if(messages == null) {
                 WindowUtility.Horizontal(() => {
@@ -271,21 +276,21 @@ namespace EasyMarketingInUnity {
                 GUILayout.Label("<b>" + mess.name + "</b>: " + mess.message, text);
             }, 30, 10);
 
-            WindowUtility.Horizontal(() => {
-                GUIContent content;
-                if (mess.liked) {
-                    content = new GUIContent(WindowData.likeImage, "Unlike this (Not Implemented)");
-                } else {
-                    content = new GUIContent(WindowData.unlikeImage, "Like this (Not Implemented)");
-                }
-                if (GUILayout.Button(content, GUILayout.Width(30), GUILayout.Height(30))) {
-                    mess.liked = !mess.liked;
-                }
+            //WindowUtility.Horizontal(() => {
+            //    GUIContent content;
+            //    if (mess.liked) {
+            //        content = new GUIContent(WindowData.likeImage, "Unlike this (Not Implemented)");
+            //    } else {
+            //        content = new GUIContent(WindowData.unlikeImage, "Like this (Not Implemented)");
+            //    }
+            //    if (GUILayout.Button(content, GUILayout.Width(30), GUILayout.Height(30))) {
+            //        mess.liked = !mess.liked;
+            //    }
 
-                if (GUILayout.Button("Reply (Not Implemented)", GUILayout.ExpandWidth(false), GUILayout.Height(30))) {
-                    data.replyToMessage = mess;
-                }
-            }, 30, 10);
+            //    if (GUILayout.Button("Reply (Not Implemented)", GUILayout.ExpandWidth(false), GUILayout.Height(30))) {
+            //        data.replyToMessage = mess;
+            //    }
+            //}, 30, 10);
         }
         private void DisplayReplyMessage(ResponseData.Message mess) {
             GUIStyle text = new GUIStyle(GUI.skin.label);
@@ -296,41 +301,49 @@ namespace EasyMarketingInUnity {
                 GUILayout.Label("<b>" + mess.name + "</b>: " + mess.message, text);
             }, 50, 10);
              
-            WindowUtility.Horizontal(() => {
+            //WindowUtility.Horizontal(() => {
 
-                GUIContent content;
-                if (mess.liked) {
-                    content = new GUIContent(WindowData.likeImage, "Unlike this (Not Implemented)");
-                } else {
-                    content = new GUIContent(WindowData.unlikeImage, "Like this (Not Implemented)");
-                }
-                if (GUILayout.Button(content, GUILayout.Width(30), GUILayout.Height(30))) {
-                    mess.liked = !mess.liked;
-                }
-                if (GUILayout.Button("Reply (Not Implemented)", GUILayout.ExpandWidth(false), GUILayout.Height(30))) {
-                    data.replyToMessage = mess;
-                }
-            }, 50, 10);
+            //    GUIContent content;
+            //    if (mess.liked) {
+            //        content = new GUIContent(WindowData.likeImage, "Unlike this (Not Implemented)");
+            //    } else {
+            //        content = new GUIContent(WindowData.unlikeImage, "Like this (Not Implemented)");
+            //    }
+            //    if (GUILayout.Button(content, GUILayout.Width(30), GUILayout.Height(30))) {
+            //        mess.liked = !mess.liked;
+            //    }
+            //    if (GUILayout.Button("Reply (Not Implemented)", GUILayout.ExpandWidth(false), GUILayout.Height(30))) {
+            //        data.replyToMessage = mess;
+            //    }
+            //}, 50, 10);
         }
 
+
+        private void CheckResponses(string name, bool force = false) {
+            if (force || !ResponseData.Contains(data.authDelay, name) ||
+                    EditorApplication.timeSinceStartup > ResponseData.Get(data.authDelay, name)) {
+
+                float nextTime = (float)EditorApplication.timeSinceStartup + settings.responseDelay / 1000f;
+                ResponseData.Replace(data.authDelay, name, nextTime);
+
+                ResponseData.Replace(data.authResponses, name, GetResponses(name));
+            }
+        }
         private List<ResponseData.Message> GetResponses(string name) {
             List<ResponseData.Message> messages = null;
 
             var res = Server.Instance.SendRequest(name, HTTPMethod.Get);
-            if (settings.debugMode) {
-                Debug.Log(res);
-            }
 
             switch (name) {
                 case "Twitter":
-                    messages = TwitterToMessage(res, false, true);
+                    messages = TwitterToMessage(res, null, settings.twitterShowReplies);
                     break;
             }
 
             return messages;
         }
         private List<ResponseData.Message> TwitterToMessage(ServerObject res, 
-            bool areReply = false, bool getReplies = false) {
+            ResponseData.Message prevMessage = null, bool getReplies = false) {
             List<ResponseData.Message> messages = new List<ResponseData.Message>();
 
             if (res.errorCode == 0) {
@@ -340,22 +353,38 @@ namespace EasyMarketingInUnity {
                     for (int i = 0; i < array.Count; i++) {
                         var element = array[i];
 
+                        // Check If reply was towards itself...
+                        if (!settings.twitterShowUserReplies && prevMessage != null) {
+                            string userID = prevMessage.userId;
+                            string currentUserID = element["user"]["id_str"].Value<string>();
+                            if (userID == currentUserID){
+                                continue;
+                            }
+                        }
+
+                        // Check
+                        if (!settings.twitterShowUserRetweets) {
+                            JToken retweetToken = element["retweeted_status"];
+                            if (retweetToken != null) {
+                                continue;
+                            }                 
+                        }
+
                         ResponseData.Message message = new ResponseData.Message();
                         message.userId = element["user"]["id_str"].Value<string>();
                         message.messageId = element["id_str"].Value<string>();
                         message.message = element["text"].Value<string>();
                         message.name = element["user"]["name"].Value<string>();
                         message.liked = element["favorited"].Value<bool>();
-                        message.isReply = areReply;
+                        message.isReply = prevMessage != null;
+                        message.site = "Twitter";
                         messages.Add(message);
 
                         if (getReplies) {
                             string query = "tweet_id="+ message.messageId + "&reply=true";
                             var replyRes = Server.Instance.SendRequest("Twitter", HTTPMethod.Get, query);
-                            if (settings.debugMode) {
-                                Debug.Log(replyRes);
-                            }
-                            messages.AddRange(TwitterToMessage(replyRes, true, false));
+
+                            messages.AddRange(TwitterToMessage(replyRes, message, false));
                         }
                     }
                 } else { // Single Tweet
@@ -367,7 +396,8 @@ namespace EasyMarketingInUnity {
                     message.message = token["text"].Value<string>();
                     message.name = token["user"]["name"].Value<string>();
                     message.liked = token["favorited"].Value<bool>();
-                    message.isReply = areReply;
+                    message.isReply = prevMessage != null;
+                    message.site = "Twitter";
                     messages.Add(message);
 
                     if (getReplies) {
@@ -376,19 +406,33 @@ namespace EasyMarketingInUnity {
                         if (settings.debugMode) {
                             Debug.Log(replyRes);
                         }
-                        messages.AddRange(TwitterToMessage(replyRes, true, false));
+                        messages.AddRange(TwitterToMessage(replyRes, message, false));
                     }
                 }
             } else { // Error
                 ResponseData.Message message = new ResponseData.Message();
                 message.message = res.errorMessage;
                 message.name = res.displayMessage + " " + res.status + ":" + res.errorCode;
-                message.isReply = areReply;
+                message.isReply = prevMessage != null;
+                message.site = "Twitter";
                 messages.Add(message);
             }
 
             return messages;
         }
         private ResponseData.Message[] FacebookToMessage(ServerObject res) {  return null; }
+
+        public static string CreateReplyQuery(string auth, string text, string file, ResponseData.Message message) {
+            string query = "";
+
+            switch (auth) {
+                case "Twitter":
+                    query = PostingWindow.CreatePostQuery(auth, text, file);
+                    query += "&replyTo=" + message.messageId;
+                    break;
+            }
+
+            return query;
+        }
     }
 }
