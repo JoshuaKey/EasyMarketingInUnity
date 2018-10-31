@@ -1,10 +1,10 @@
 # Easy Marketing in Unity
-Easy Marketing in Unity is a plugin which allows users to post to multiple Social Media Sites from within the Unity Editor.
+Easy Marketing in Unity is a plugin which allows users to post to multiple Social Media Sites from within the Unity Editor. 
 The goal of this plugin is to enable more developers to market their games more.
 
 Easy Marketing in Unity is **NOT** a replacement for these sites
 
-### What it Contains
+## What it Contains
 Easy Marketing In Unity comes with 4 folders
 
 * **Editor** is responsible for all the code. You can look at it for inspiration, but it probably won't help.
@@ -14,7 +14,7 @@ Easy Marketing In Unity comes with 4 folders
 
 See the Help window for More Info.
 
-### How it Works
+## How it Works
 Easy Marketing In Unity uses 3 components **Unity**, **DLL**, and the **Server**
 * **Unity** allows for displaying UI and receiving User Interaction.
 * The **DLL** acts as a medium for interacting with the Server.
@@ -22,7 +22,7 @@ Easy Marketing In Unity uses 3 components **Unity**, **DLL**, and the **Server**
 
 See the Help window for More Info.
 
-### Instructions
+## Instructions
 1.) Find the Repository at https://github.com/JoshuaKey/EasyMarketingInUnity
 
 2.) Download the Zip file (EasyMarketingInUnity.zip)
@@ -35,15 +35,17 @@ See the Help window for More Info.
 
 6.) Enjoy!
 
-### Support
-Easy Marketing in Unity currently Supports:
+## Support
+Current Support:
+
 OS:
 * Windows
 
 Sites:
 * Twitter
 
-Easy Marketing in Unity plans currently Supports:
+Future Support:
+
 OS:
 * Windows
 * Mac
@@ -61,7 +63,7 @@ Sites:
 * VKontakte
 * Google Plus
 
-### Errors
+## Errors
 **Error:** "Opening File ... The process can not access the file because it is being used by another process."
 * Hit Cancel. Unity is being a baby because it can't access the file.
 
@@ -70,14 +72,14 @@ Sites:
 * Notifications Settings does not work
 * Restart on Crash in Settings does not work
 
-### Testing
+## Testing
 Here is what I am looking for with Testing. Feel free to send me comments.
 
 * UI / UX 
 * Efficiency
 * OS / Unity Version Support
 
-### Contact
+## Contact
 You can **Reports Bugs** on [Github](https://github.com/JoshuaKey/EasyMarketingInUnity) by making an Issue.
 You can contact me at my email, KeyJoshJ98@yahoo.com
 
