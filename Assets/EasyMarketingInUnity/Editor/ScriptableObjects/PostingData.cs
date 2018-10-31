@@ -17,7 +17,9 @@ public class PostingData : ScriptableObject {
     public WindowUtility.GridLayout layout;
 
     public string specificAuth = "";
-    public Vector2 scrollPos;
+    public Vector2 multiScrollPos;
+    public Vector2 gridScrollPos;
+    public Vector2 authScrollPos;
 
 
     public void OnEnable() {

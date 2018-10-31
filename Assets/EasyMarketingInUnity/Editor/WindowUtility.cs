@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 namespace EasyMarketingInUnity {
@@ -16,6 +17,8 @@ namespace EasyMarketingInUnity {
         public static GridLayout ToggleLayout(ref GridLayout layout) {
             return layout = (layout == GridLayout.Vertical ? GridLayout.Horizontal : GridLayout.Vertical);
         }
+
+        // GENERIC Utility Methods ----------------------------------------
 
         /// <summary>
         /// Displays the content Vertically and performs 'action' between TopSpace and BotSpace
@@ -58,6 +61,56 @@ namespace EasyMarketingInUnity {
             }
             EditorGUILayout.EndFadeGroup();
         }
+        /// <summary>
+        /// Displays a foldout
+        /// </summary>
+        /// <param name="fold">Wether or not to expand</param>
+        /// <param name="text">Foldout Text</param>
+        /// <returns>Fold</returns>
+        public static bool Foldout(ref bool fold, string text) {
+            fold = EditorGUILayout.Foldout(fold, text);
+            return fold;
+        }
+        /// <summary>
+        /// Performs action in a Scroll View
+        /// </summary>
+        /// <param name="scrollPos">Variable tracking the Scroll View's position</param>
+        /// <param name="action">Custom GUI content to be displayed</param>
+        /// <returns>Scroll Position</returns>
+        public static Vector2 Scroll(ref Vector2 scrollPos, System.Action action, 
+             bool showVert = false, bool showHori = false) {
+            scrollPos = GUILayout.BeginScrollView(scrollPos, showHori, showVert);
+
+            action();
+
+            GUILayout.EndScrollView();
+            return scrollPos;
+        }
+        /// <summary>
+        /// Draws a Horizontal line with the given height.
+        /// </summary>
+        /// <param name="height">Line Thickness</param>
+        public static void DrawLine(int height, Color? color = null) {
+            if (!color.HasValue) {
+                color = new Color(0.5f, 0.5f, 0.5f, 1);
+            }
+
+            Rect rect = EditorGUILayout.GetControlRect(false, height);
+            rect.height = height;
+
+            EditorGUI.DrawRect(rect, color.Value);
+        }
+
+        /// <summary>
+        /// Displays a Fade with a Foldout above it
+        /// </summary>
+        /// <param name="animBool">Animated Bool for Fade and Folding</param>
+        /// <param name="text">Foldout text</param>
+        /// <param name="action">Dispplay to Perform in Fade</param>
+        public static void FadeWithFoldout(ref AnimBool animBool, string text, System.Action action) {
+            animBool.target = EditorGUILayout.Foldout(animBool.target, text);
+            Fade(animBool.faded, action);
+        }
 
         public static void DisplayGrid(GridLayout layout, AuthDelegate action) {
             var enumerator = WindowData.authTextures.GetEnumerator();
@@ -77,6 +130,8 @@ namespace EasyMarketingInUnity {
             }
             GUILayout.EndVertical();
         }
+
+        // POSTING Utility Methods --------------------------------------
 
         public static int DisplayToolbar(ref int choice, bool expand = true) {
             choice = GUILayout.Toolbar(choice, WindowData.TOOLBAR_CHOICE, GUILayout.ExpandWidth(expand));
@@ -154,6 +209,9 @@ namespace EasyMarketingInUnity {
                             "Authenticate", "Cancel");
                         if (authenticate) {
                             Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
+                            //if (WindowData.settingData.debugMode) {
+                            //    Debug.Log(res);
+                            //}
                             if (auth.Authenticated) {
                                 WindowData.settingData.multiPosters.Add(name);
                             }
@@ -198,7 +256,7 @@ namespace EasyMarketingInUnity {
                 for (int y = 0; y < maxAmo && i < length && enumerator.MoveNext(); y++, i++) {
                     string name = enumerator.Current.Key;
 
-                    GUIStyle style = GUI.skin.button;
+                    GUIStyle style = new GUIStyle(GUI.skin.button);
                     style.alignment = TextAnchor.MiddleLeft;
                     style.imagePosition = ImagePosition.ImageLeft;
 
@@ -212,34 +270,6 @@ namespace EasyMarketingInUnity {
                 GUILayout.EndHorizontal(); 
             }
             GUILayout.EndVertical(); 
-
-
-            // VERTICAL and HORIZONTAL
-            //if (layout == GridLayout.Horizontal) { GUILayout.BeginVertical(); }
-            //else { GUILayout.BeginHorizontal(); }
-            //for (int i = 0; i < length;) {
-            //    if (layout == GridLayout.Horizontal) { GUILayout.BeginHorizontal(); }
-            //    else { GUILayout.BeginVertical(); }
-
-            //    for (int y = 0; y < maxAmo && i < length && enumerator.MoveNext(); y++, i++) {
-            //        string name = enumerator.Current.Key;
-
-            //        GUIStyle style = GUI.skin.button;
-            //        style.alignment = TextAnchor.MiddleLeft;
-            //        style.imagePosition = ImagePosition.ImageLeft;
-
-            //        GUIContent content = new GUIContent(name, WindowData.authTextures[name], name);
-            //        if (GUILayout.Button(content, style, GUILayout.Width(btnSize.x), GUILayout.Height(btnSize.y))) {
-            //            selection = name;
-            //        }
-
-            //        GUILayout.FlexibleSpace();
-            //    }
-            //    if (layout == GridLayout.Horizontal) { GUILayout.EndHorizontal(); }
-            //    else { GUILayout.EndVertical(); }
-            //}
-            //if (layout == GridLayout.Horizontal) { GUILayout.EndVertical(); }
-            //else { GUILayout.EndHorizontal(); }
 
             return selection;
         }
@@ -295,9 +325,9 @@ namespace EasyMarketingInUnity {
                     }
 
                     var res = Server.Instance.SendRequest("Twitter", HTTPMethod.Post, query);
-                    if (res.errorCode != 0) {
-                        Debug.Log(res);
-                    }
+                    //if (WindowData.settingData.debugMode) {
+                    //    Debug.Log(res);
+                    //}
 
                     data.postResult = res.displayMessage + "\n";
 
@@ -311,6 +341,13 @@ namespace EasyMarketingInUnity {
                 GUILayout.Label(data.postResult);
             });
 
+        }
+
+        // HELP Utility Methods -----------------------------------------
+
+        public static int DisplayHelpToolbar(ref int choice, bool expand = true) {
+            choice = GUILayout.Toolbar(choice, WindowData.HELP_TOOLBAR_CHOICE, GUILayout.ExpandWidth(expand));
+            return choice;
         }
 
         private static double lastCall = 0;
