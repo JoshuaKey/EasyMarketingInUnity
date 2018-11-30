@@ -28,6 +28,20 @@ public class SettingData : ScriptableObject {
     public bool twitterShowUserReplies;
     public bool twitterReplyChain;
 
+    // Discord
+    public int discordDefaultChannelIndex;
+    public string[] discordAllChannelNames;
+    public string[] discordAllChannelIDs;
+
+    // Reddit
+    public int redditDefaultSubredditIndex;
+    public string[] redditAllSubredditNames;
+
+    // Slack
+    public int slackDefaultChannelIndex;
+    public string[] slackAllChannelNames;
+    public string[] slackAllChannelIDs;
+
     // General Settings???
     public Vector2 multiScroll;
     public AnimBool advancedBool;

@@ -9,9 +9,9 @@ namespace EasyMarketingInUnity {
     public static class WindowData {
         // Constants
         public static string[] TOOLBAR_CHOICE = new string[] { "Multiple", "Single" };
-        public static string[] HELP_TOOLBAR_CHOICE = new string[] { "About", "FAQ", "Credits" };
+        public static string[] HELP_TOOLBAR_CHOICE = new string[] { "About", "FAQ" };
         public static string[] ATTACH_FILE_EXTENSIONS = new string[] { "Image Files", "png,jpeg,jpg,tif,bmp", "Gif Files", "gif", "Video Files", "avi,flv,wmv,mov,mp4", "All Files", "png,jpeg,jpg,tif,bmp,gif,avi,flv,wmv,mov,mp4" };
-        public static string[] IMPLEMENTED_AUTHENTICATORS = new string[] { "Twitter" };
+        public static string[] IMPLEMENTED_AUTHENTICATORS = new string[] { "Twitter", "Discord", "Reddit", "Slack", "Vkontakte", };
 
         // Specific Window Data
         public static PostingData postingData { get; private set; }

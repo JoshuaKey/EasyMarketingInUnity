@@ -61,9 +61,12 @@ var send500Response = function(res, errCode, errMessage){
 }
 
 // Bind this to Response with serviceCallback.bind(res);
-var serviceCallback = function(err, obj){
-    console.log(err);
-    console.log(obj);
+var serviceCallback = function(err, obj){   
+    console.log('Error: ', err);
+    console.log('Results: ', obj);
+    
+    if(this.headersSent) { console.log("Response already Sent"); return; }
+    
     if(err) { send400Response(this, err.code, err.message);  }
     else { send200Response(this, obj); }
 }

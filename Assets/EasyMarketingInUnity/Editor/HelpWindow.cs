@@ -34,11 +34,12 @@ namespace EasyMarketingInUnity {
 
                 if (data.toolbarChoice == 0) {
                     DisplayInfo();
-                } else if (data.toolbarChoice == 1) {
+                } else /*if (data.toolbarChoice == 1)*/ {
                     DisplayFAQ();
-                } else {             
-                    DisplayCredits();
-                }
+                } 
+                //else {             
+                //    DisplayCredits();
+                //}
 
             }
             Repaint();

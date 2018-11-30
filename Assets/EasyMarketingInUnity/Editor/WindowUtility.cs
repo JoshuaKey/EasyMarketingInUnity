@@ -209,16 +209,14 @@ namespace EasyMarketingInUnity {
                             "Authenticate", "Cancel");
                         if (authenticate) {
                             Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
-                            //if (WindowData.settingData.debugMode) {
-                            //    Debug.Log(res);
-                            //}
                             if (auth.Authenticated) {
                                 WindowData.settingData.multiPosters.Add(name);
+                                PostingWindow.OnAuthenticate(name);
                             }
+                            
                         }
                     } else {
-                        EditorUtility.DisplayDialog(name, "Not Implemented",
-                            "Ok");
+                        EditorUtility.DisplayDialog(name, "Not Supported", "Ok");
                     }
                 } else {
                     WindowData.settingData.multiPosters.Remove(name);
@@ -272,75 +270,6 @@ namespace EasyMarketingInUnity {
             GUILayout.EndVertical(); 
 
             return selection;
-        }
-        public static void DisplayAuthCustomPost(string name, PostingData data) {
-            if (WindowData.IMPLEMENTED_AUTHENTICATORS.Contains(name)) {
-                Authenticator auth = Server.Instance.GetAuthenticator(name);
-                if (!auth.Authenticated) {
-                    // Authenticate Button
-                    Horizontal(() => {
-                        Vertical(() => {
-                            if (GUILayout.Button("Authenticate")) {
-                                Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
-                            }
-                        });
-                    });
-                } else {
-                    // Specific Post 
-                    switch (name) {
-                        case "Twitter":
-                            DisplayTwitterPost(data);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            // Not Implemented
-            else {
-                Horizontal(() => {
-                    Vertical(() => {
-                        GUILayout.Label("Not Implemented");
-                    });
-                });
-            }
-        }
-        public static void DisplayTwitterPost(PostingData data) {
-            // Text Area
-            Horizontal(() => {
-                data.postingText = GUILayout.TextArea(data.postingText, GUILayout.Height(100));
-            }, 30, 30);
-
-            // Attachment
-            Horizontal(() => {
-                DisplayAttachment(ref data.attachFile);
-            }, 50);
-
-            // Post Button
-            Horizontal(() => {
-                if (GUILayout.Button("Post")) {
-                    string query = "status=" + data.postingText;
-                    if (data.attachFile != "") {
-                        query = "&media=" + data.attachFile;
-                    }
-
-                    var res = Server.Instance.SendRequest("Twitter", HTTPMethod.Post, query);
-                    //if (WindowData.settingData.debugMode) {
-                    //    Debug.Log(res);
-                    //}
-
-                    data.postResult = res.displayMessage + "\n";
-
-                    data.postingText = "";
-                    data.attachFile = "";
-                }
-            });
-
-            // Error / Success
-            WindowUtility.Horizontal(() => {
-                GUILayout.Label(data.postResult);
-            });
-
         }
 
         // HELP Utility Methods -----------------------------------------

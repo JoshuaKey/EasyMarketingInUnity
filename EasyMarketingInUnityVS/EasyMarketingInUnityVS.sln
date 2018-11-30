@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnityConsole
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnity", "EasyMarketingInUnity\EasyMarketingInUnity.csproj", "{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMarketingInUnityBasic", "EasyMarketingInUnityBasic\EasyMarketingInUnityBasic.csproj", "{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KillProcess", "KillProcess\KillProcess.csproj", "{8A284A8C-53A6-4FD1-884C-3CDE4C99C921}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckTCPConnections", "CheckTCPConnections\CheckTCPConnections.csproj", "{D18A4B0D-6B81-42FE-84CD-4135E6243C1E}"
@@ -27,10 +25,6 @@ Global
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF4A0FB2-E105-41FA-9A8A-3BF1BE61B46D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19CD39D7-1BAA-4FE5-A10A-D335D8124DDE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A284A8C-53A6-4FD1-884C-3CDE4C99C921}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8A284A8C-53A6-4FD1-884C-3CDE4C99C921}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A284A8C-53A6-4FD1-884C-3CDE4C99C921}.Release|Any CPU.ActiveCfg = Release|Any CPU

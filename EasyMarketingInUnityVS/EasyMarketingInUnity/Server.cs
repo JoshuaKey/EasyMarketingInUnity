@@ -484,13 +484,11 @@ namespace EasyMarketingInUnity {
 
             AddGenericAuthenticator("Reddit");
             AddGenericAuthenticator("Slack");
-            AddGenericAuthenticator("Instagram");
+            AddGenericAuthenticator("Vkontakte");
 
+            AddGenericAuthenticator("Instagram");
             AddGenericAuthenticator("Youtube");
             AddGenericAuthenticator("Itch");
-            AddGenericAuthenticator("VKontakte");
-
-            AddGenericAuthenticator("Google Plus");
         }
         /// <summary>
         /// For Internal use only

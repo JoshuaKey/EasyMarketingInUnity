@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace EasyMarketingInUnity {
     public class PostingWindow : EditorWindow {
@@ -142,6 +143,13 @@ namespace EasyMarketingInUnity {
                         GUILayout.Label(content, style, GUILayout.Width(150), GUILayout.Height(30));
 
                         GUILayout.FlexibleSpace();
+        
+                        WindowUtility.Vertical(() => {
+                            if (GUILayout.Button("Settings")) {
+                                SettingsWindow.ShowWindow();
+                                WindowData.settingData.specificSite = data.specificAuth;
+                            }
+                        }, 7, 0);
 
                         WindowUtility.Vertical(() => {
                             if (GUILayout.Button("Back")) {
@@ -166,30 +174,26 @@ namespace EasyMarketingInUnity {
                         WindowUtility.Vertical(() => {
                             if (GUILayout.Button("Authenticate")) {
                                 Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
+                                if (Server.Instance.GetAuthenticator(name).Authenticated) {
+                                    OnAuthenticate(name);
+                                }
                             }
                         });
                     });
                 } else {
-                    // Specific Post 
-                    switch (name) {
-                        case "Twitter":
-                            DisplayTwitterPost();
-                            break;
-                        default:
-                            break;
-                    }
+                    DisplayGenericPost();
                 }
             }
             // Not Implemented
             else {
                 WindowUtility.Horizontal(() => {
                     WindowUtility.Vertical(() => {
-                        GUILayout.Label("Not Implemented");
+                        GUILayout.Label("Not Supported");
                     });
                 });
             }
         }
-        public void DisplayTwitterPost() {
+        public void DisplayGenericPost() {
             // Text Area
             WindowUtility.Horizontal(() => {
                 data.postingText = GUILayout.TextArea(data.postingText, GUILayout.Height(100));
@@ -205,7 +209,7 @@ namespace EasyMarketingInUnity {
                 if (GUILayout.Button("Post")) {
                     string query = CreatePostQuery(data.specificAuth, data.postingText, data.attachFile);
 
-                    var res = Server.Instance.SendRequest("Twitter", HTTPMethod.Post, query);
+                    var res = Server.Instance.SendRequest(data.specificAuth, HTTPMethod.Post, query);
 
                     data.postResult = res.displayMessage + "\n";
 
@@ -218,7 +222,6 @@ namespace EasyMarketingInUnity {
             WindowUtility.Horizontal(() => {
                 GUILayout.Label(data.postResult);
             });
-
         }
 
         public static string CreatePostQuery(string auth, string text, string file) {
@@ -234,9 +237,107 @@ namespace EasyMarketingInUnity {
                         query += "&multiple=true";
                     }
                     break;
+                case "Discord":
+                    query = "message=" + text;
+                    if (file != "") {
+                        query += "&file=" + file;
+                    }
+                    query += "&channel=" + WindowData.settingData.discordAllChannelIDs[WindowData.settingData.discordDefaultChannelIndex];      
+                    break;
+                case "Reddit":
+                    var maxIndex = Mathf.Min(300, text.Length);
+                    var title = text.Substring(0, maxIndex);
+                    query = "title=" + title.Substring(0, title.LastIndexOf(' '));
+                    query += "&message=" + text;
+
+                    // FLAIR
+                    query += "&objID=" + WindowData.settingData.redditAllSubredditNames[WindowData.settingData.redditDefaultSubredditIndex];
+
+                    // Reddit doesn't do Media
+                    break;
+                case "Slack":
+                    query = "channel=" + WindowData.settingData.slackAllChannelIDs[WindowData.settingData.slackDefaultChannelIndex];
+                    if (text != "") {
+                        query += "&message=" + text;
+                    }
+                    if (file != "") {
+                        query += "&file=" + file;
+                    }                
+                    break;
+                case "Vkontakte":
+                    query = "message=" + text;
+                    break;
             }
 
             return query;
+        }
+        public static void OnAuthenticate(string auth) {
+            ServerObject res = null;
+
+            switch (auth) {
+                case "Discord":
+                    res = Server.Instance.SendRequest(auth, HTTPMethod.Get);
+                    if (res.errorCode == 0 && res.results.Type == JTokenType.Array) {
+                        JArray array = JArray.Parse(res.results.ToString());
+                        var channels = array.Where((x) => {
+                            return x["parent_id"].ToString() != "";
+                        });
+
+                        WindowData.settingData.discordAllChannelNames = new string[channels.Count()];
+                        WindowData.settingData.discordAllChannelIDs = new string[channels.Count()];
+                        
+                        for (int i = 0; i < channels.Count(); i++) {
+                            var element = channels.ElementAt(i);
+
+                            WindowData.settingData.discordAllChannelNames[i] = element["name"].Value<string>();
+                            WindowData.settingData.discordAllChannelIDs[i] = element["id"].Value<string>();
+                        }
+
+                    } else {
+                        Debug.Log("Invalid Response: Expected Array of Discord Channels");
+                    }
+                    break;
+                case "Reddit":
+                    res = Server.Instance.SendRequest(auth, HTTPMethod.Get, "subscribed=true");
+                    if (res.errorCode == 0){
+                        if (res.results["data"]["children"].Type == JTokenType.Array) {
+                            JArray array = JArray.Parse(res.results["data"]["children"].ToString());
+
+                            WindowData.settingData.redditAllSubredditNames = new string[array.Count()];
+
+                            for (int i = 0; i < array.Count; i++) {
+                                var element = array[i];
+
+                                WindowData.settingData.redditAllSubredditNames[i] = element["data"]["display_name"].Value<string>();
+                            }
+
+                        } else {
+                            Debug.Log("Invalid Response: Expected Array of Reddit Subreddits");
+                        }
+                    } 
+                    break;
+                case "Slack":
+                    res = Server.Instance.SendRequest(auth, HTTPMethod.Get, "subscribed=true");
+                    if (res.errorCode == 0) {
+                        if (res.results["channels"].Type == JTokenType.Array) {
+                            JArray array = JArray.Parse(res.results["channels"].ToString());
+
+                            WindowData.settingData.slackAllChannelNames = new string[array.Count()];
+                            WindowData.settingData.slackAllChannelIDs = new string[array.Count()];
+
+                            for (int i = 0; i < array.Count; i++) {
+                                var element = array[i];
+
+                                WindowData.settingData.slackAllChannelNames[i] = element["name"].Value<string>();
+                                WindowData.settingData.slackAllChannelIDs[i] = element["id"].Value<string>();
+                            }
+
+                        } else {
+                            Debug.Log("Invalid Response: Expected Array of Reddit Subreddits");
+                        }
+                    }
+                    break;
+            }
         }
     }
 }

@@ -1,0 +1,127 @@
+== Info:   Trying 104.16.58.5...
+== Info: TCP_NODELAY set
+== Info: Connected to discordapp.com (104.16.58.5) port 443 (#0)
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 1/3)
+== Info: schannel: checking server certificate revocation
+== Info: schannel: sending initial handshake data: sending 179 bytes...
+== Info: schannel: sent initial handshake data: sent 179 bytes
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 2/3)
+== Info: schannel: failed to receive handshake, need more data
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 2/3)
+== Info: schannel: encrypted data got 4096
+== Info: schannel: encrypted data buffer: offset 4096 length 4096
+== Info: schannel: encrypted data length: 4024
+== Info: schannel: encrypted data buffer: offset 4024 length 4096
+== Info: schannel: received incomplete message, need more data
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 2/3)
+== Info: schannel: encrypted data got 1024
+== Info: schannel: encrypted data buffer: offset 5048 length 5048
+== Info: schannel: encrypted data length: 231
+== Info: schannel: encrypted data buffer: offset 231 length 5048
+== Info: schannel: received incomplete message, need more data
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 2/3)
+== Info: schannel: encrypted data got 83
+== Info: schannel: encrypted data buffer: offset 314 length 5048
+== Info: schannel: sending next handshake data: sending 93 bytes...
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 2/3)
+== Info: schannel: encrypted data got 258
+== Info: schannel: encrypted data buffer: offset 258 length 5048
+== Info: schannel: SSL/TLS handshake complete
+== Info: schannel: SSL/TLS connection with discordapp.com port 443 (step 3/3)
+== Info: schannel: stored credential handle in session cache
+=> Send header, 318 bytes (0x13e)
+0000: 50 4f 53 54 20 2f 61 70 69 2f 63 68 61 6e 6e 65 POST /api/channe
+0010: 6c 73 2f 35 30 37 32 38 37 34 39 32 37 37 37 36 ls/5072874927776
+0020: 30 37 31 37 30 2f 77 65 62 68 6f 6f 6b 73 20 48 07170/webhooks H
+0030: 54 54 50 2f 31 2e 31 0d 0a 48 6f 73 74 3a 20 64 TTP/1.1..Host: d
+0040: 69 73 63 6f 72 64 61 70 70 2e 63 6f 6d 0d 0a 41 iscordapp.com..A
+0050: 63 63 65 70 74 3a 20 2a 2f 2a 0d 0a 55 73 65 72 ccept: */*..User
+0060: 2d 41 67 65 6e 74 3a 20 45 61 73 79 4d 61 72 6b -Agent: EasyMark
+0070: 65 74 69 6e 67 49 6e 55 6e 69 74 79 20 28 68 74 etingInUnity (ht
+0080: 74 70 73 3a 2f 2f 67 69 74 68 75 62 2e 63 6f 6d tps://github.com
+0090: 2f 4a 6f 73 68 75 61 4b 65 79 2f 45 61 73 79 4d /JoshuaKey/EasyM
+00a0: 61 72 6b 65 74 69 6e 67 49 6e 55 6e 69 74 79 2c arketingInUnity,
+00b0: 20 76 30 2e 35 29 0d 0a 43 6f 6e 74 65 6e 74 2d  v0.5)..Content-
+00c0: 54 79 70 65 3a 20 61 70 70 6c 69 63 61 74 69 6f Type: applicatio
+00d0: 6e 2f 6a 73 6f 6e 0d 0a 41 75 74 68 6f 72 69 7a n/json..Authoriz
+00e0: 61 74 69 6f 6e 3a 20 42 6f 74 20 4e 44 63 30 4d ation: Bot NDc0M
+00f0: 7a 55 34 4e 54 45 78 4f 44 41 34 4d 6a 67 79 4e zU4NTExODA4MjgyN
+0100: 6a 59 32 2e 44 73 49 30 2d 77 2e 2d 7a 63 4d 50 jY2.DsI0-w.-zcMP
+0110: 47 70 50 64 67 45 74 6e 2d 45 37 41 30 72 6b 42 GpPdgEtn-E7A0rkB
+0120: 6d 2d 65 56 6b 67 0d 0a 43 6f 6e 74 65 6e 74 2d m-eVkg..Content-
+0130: 4c 65 6e 67 74 68 3a 20 32 35 0d 0a 0d 0a       Length: 25....
+=> Send data, 25 bytes (0x19)
+0000: 6e 61 6d 65 44 45 61 73 79 4d 61 72 6b 65 74 69 nameDEasyMarketi
+0010: 6e 67 49 6e 55 6e 69 74 79                      ngInUnity
+== Info: upload completely sent off: 25 out of 25 bytes
+== Info: schannel: client wants to read 102400 bytes
+== Info: schannel: encdata_buffer resized 103424
+== Info: schannel: encrypted data buffer: offset 0 length 103424
+== Info: schannel: encrypted data got 598
+== Info: schannel: encrypted data buffer: offset 598 length 103424
+== Info: schannel: decrypted data length: 569
+== Info: schannel: decrypted data added: 569
+== Info: schannel: decrypted data cached: offset 569 length 102400
+== Info: schannel: encrypted data buffer: offset 0 length 103424
+== Info: schannel: decrypted data buffer: offset 569 length 102400
+== Info: schannel: schannel_recv cleanup
+== Info: schannel: decrypted data returned 569
+== Info: schannel: decrypted data buffer: offset 0 length 102400
+<= Recv header, 26 bytes (0x1a)
+0000: 48 54 54 50 2f 31 2e 31 20 34 30 30 20 42 41 44 HTTP/1.1 400 BAD
+0010: 20 52 45 51 55 45 53 54 0d 0a                    REQUEST..
+<= Recv header, 37 bytes (0x25)
+0000: 44 61 74 65 3a 20 46 72 69 2c 20 30 39 20 4e 6f Date: Fri, 09 No
+0010: 76 20 32 30 31 38 20 31 38 3a 30 34 3a 33 38 20 v 2018 18:04:38 
+0020: 47 4d 54 0d 0a                                  GMT..
+<= Recv header, 32 bytes (0x20)
+0000: 43 6f 6e 74 65 6e 74 2d 54 79 70 65 3a 20 61 70 Content-Type: ap
+0010: 70 6c 69 63 61 74 69 6f 6e 2f 6a 73 6f 6e 0d 0a plication/json..
+<= Recv header, 20 bytes (0x14)
+0000: 43 6f 6e 74 65 6e 74 2d 4c 65 6e 67 74 68 3a 20 Content-Length: 
+0010: 33 36 0d 0a                                     36..
+<= Recv header, 24 bytes (0x18)
+0000: 43 6f 6e 6e 65 63 74 69 6f 6e 3a 20 6b 65 65 70 Connection: keep
+0010: 2d 61 6c 69 76 65 0d 0a                         -alive..
+<= Recv header, 145 bytes (0x91)
+0000: 53 65 74 2d 43 6f 6f 6b 69 65 3a 20 5f 5f 63 66 Set-Cookie: __cf
+0010: 64 75 69 64 3d 64 32 61 36 35 38 62 39 65 62 36 duid=d2a658b9eb6
+0020: 64 32 37 35 37 30 30 39 35 64 31 66 35 32 38 35 d27570095d1f5285
+0030: 34 36 63 61 37 38 31 35 34 31 37 38 36 36 37 38 46ca781541786678
+0040: 3b 20 65 78 70 69 72 65 73 3d 53 61 74 2c 20 30 ; expires=Sat, 0
+0050: 39 2d 4e 6f 76 2d 31 39 20 31 38 3a 30 34 3a 33 9-Nov-19 18:04:3
+0060: 38 20 47 4d 54 3b 20 70 61 74 68 3d 2f 3b 20 64 8 GMT; path=/; d
+0070: 6f 6d 61 69 6e 3d 2e 64 69 73 63 6f 72 64 61 70 omain=.discordap
+0080: 70 2e 63 6f 6d 3b 20 48 74 74 70 4f 6e 6c 79 0d p.com; HttpOnly.
+0090: 0a                                              .
+<= Recv header, 64 bytes (0x40)
+0000: 53 74 72 69 63 74 2d 54 72 61 6e 73 70 6f 72 74 Strict-Transport
+0010: 2d 53 65 63 75 72 69 74 79 3a 20 6d 61 78 2d 61 -Security: max-a
+0020: 67 65 3d 33 31 35 33 36 30 30 30 3b 20 69 6e 63 ge=31536000; inc
+0030: 6c 75 64 65 53 75 62 44 6f 6d 61 69 6e 73 0d 0a ludeSubDomains..
+<= Recv header, 17 bytes (0x11)
+0000: 56 69 61 3a 20 31 2e 31 20 67 6f 6f 67 6c 65 0d Via: 1.1 google.
+0010: 0a                                              .
+<= Recv header, 16 bytes (0x10)
+0000: 41 6c 74 2d 53 76 63 3a 20 63 6c 65 61 72 0d 0a Alt-Svc: clear..
+<= Recv header, 100 bytes (0x64)
+0000: 45 78 70 65 63 74 2d 43 54 3a 20 6d 61 78 2d 61 Expect-CT: max-a
+0010: 67 65 3d 36 30 34 38 30 30 2c 20 72 65 70 6f 72 ge=604800, repor
+0020: 74 2d 75 72 69 3d 22 68 74 74 70 73 3a 2f 2f 72 t-uri="https://r
+0030: 65 70 6f 72 74 2d 75 72 69 2e 63 6c 6f 75 64 66 eport-uri.cloudf
+0040: 6c 61 72 65 2e 63 6f 6d 2f 63 64 6e 2d 63 67 69 lare.com/cdn-cgi
+0050: 2f 62 65 61 63 6f 6e 2f 65 78 70 65 63 74 2d 63 /beacon/expect-c
+0060: 74 22 0d 0a                                     t"..
+<= Recv header, 20 bytes (0x14)
+0000: 53 65 72 76 65 72 3a 20 63 6c 6f 75 64 66 6c 61 Server: cloudfla
+0010: 72 65 0d 0a                                     re..
+<= Recv header, 30 bytes (0x1e)
+0000: 43 46 2d 52 41 59 3a 20 34 37 37 32 33 33 66 36 CF-RAY: 477233f6
+0010: 34 65 66 35 61 30 37 36 2d 53 4c 43 0d 0a       4ef5a076-SLC..
+<= Recv header, 2 bytes (0x2)
+0000: 0d 0a                                           ..
+<= Recv data, 36 bytes (0x24)
+0000: 7b 22 6e 61 6d 65 22 3a 20 5b 22 54 68 69 73 20 {"name": ["This 
+0010: 66 69 65 6c 64 20 69 73 20 72 65 71 75 69 72 65 field is require
+0020: 64 22 5d 7d                                     d"]}
+== Info: Connection #0 to host discordapp.com left intact

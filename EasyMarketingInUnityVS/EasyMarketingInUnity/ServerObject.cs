@@ -24,6 +24,9 @@ namespace EasyMarketingInUnity {
                 using (Stream stream = response.GetResponseStream()) {
                     using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
                         responseStr = reader.ReadToEnd();
+
+                        //Console.WriteLine(responseStr);
+
                         serverObj = JsonConvert.DeserializeObject<ServerObject>(responseStr);                    
                         if(serverObj == null) {
                             throw new JsonException("Response was Empty");

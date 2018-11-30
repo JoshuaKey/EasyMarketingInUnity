@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+using System.Linq;
+
 namespace EasyMarketingInUnity {
     public class SettingsWindow : EditorWindow {
 
@@ -70,38 +72,31 @@ namespace EasyMarketingInUnity {
                 GUILayout.Space(10);
                 WindowUtility.DrawLine(1);
 
-                WindowUtility.FadeWithFoldout(ref data.notifyBool, "Notifications", () => {
-                    GUILayout.Space(10);
+                //WindowUtility.FadeWithFoldout(ref data.notifyBool, "Notifications", () => {
+                //    GUILayout.Space(10);
 
-                    WindowUtility.Horizontal(() => {
-                        WindowUtility.Vertical(() => {
-                            data.enableNotifications = EditorGUILayout.BeginToggleGroup("Enable Notifications", data.enableNotifications);
+                //    WindowUtility.Horizontal(() => {
+                //        WindowUtility.Vertical(() => {
+                //            data.enableNotifications = EditorGUILayout.BeginToggleGroup("Enable Notifications", data.enableNotifications);
 
-                            data.enableSound = GUILayout.Toggle(data.enableSound, "Enable Sound");
-                            data.enablePopup = GUILayout.Toggle(data.enablePopup, "Enable Popup");
+                //            data.enableSound = GUILayout.Toggle(data.enableSound, "Enable Sound");
+                //            data.enablePopup = GUILayout.Toggle(data.enablePopup, "Enable Popup");
 
-                            EditorGUILayout.EndToggleGroup();
-                        }, 0, 0);
+                //            EditorGUILayout.EndToggleGroup();
+                //        }, 0, 0);
 
-                    }, 30, 10);
-                });
+                //    }, 30, 10);
+                //});
 
-                GUILayout.Space(10);
-                WindowUtility.DrawLine(1);
+                //GUILayout.Space(10);
+                //WindowUtility.DrawLine(1);
 
                 WindowUtility.FadeWithFoldout(ref data.advancedBool, "Advanced Settings", () => {
                     GUILayout.Space(10);
 
                     WindowUtility.Horizontal(() => {
-                        if (data.debugMode) {
-                            string valid = Server.CheckServer() ? "Valid" : "Invalid";
-                            string good = Server.IsResponding() && !Server.HasEnded() ? "Good" : "Bad";
-                            GUILayout.Label("<b>Server Status: " + valid + "/" + good + "</b>", rich);
-                        } else {
-                            string valid = Server.CheckServer() ? "Good" : "Bad";                  
-                            GUILayout.Label("<b>Server Status: " + valid + "</b>", rich);
-                        }
-                        
+                        string valid = Server.CheckServer() ? "Good" : "Bad";                  
+                        GUILayout.Label("<b>Server Status: " + valid + "</b>", rich);
                     }, 30, 10);
                     WindowUtility.Horizontal(() => {
                         data.initOnStartup = GUILayout.Toggle(data.initOnStartup, "Initialize Server on Startup");
@@ -210,7 +205,7 @@ namespace EasyMarketingInUnity {
                     WindowUtility.Horizontal(() => {
                         if (GUILayout.Button("Kill Previous Servers", GUILayout.ExpandWidth(false))) {
                             bool ok = EditorUtility.DisplayDialog("Killing Process", 
-                                "WARNING: This will attempt to kill all processes listening at port " + data.port + ".\nThis method should only be used as a last resort.\nIn fact, I would recommend restarting your computer instead as a safer alternative.",
+                                "WARNING: This will attempt to kill all processes listening at port " + data.port + ".\n\nThis method should only be used as a last resort.\n\nIn fact, I would recommend restarting your computer instead as a safer alternative.",
                             "Kill", "Cancel");
                             if (ok) {
                                 string success = Server.KillServers(data.port) ? "Successs" : "Failed";
@@ -264,53 +259,90 @@ namespace EasyMarketingInUnity {
 
                 }, 35, 35);
 
-                switch (data.specificSite) {
-                    case "Twitter":
-                        DisplayTwitterSettings();
-                        break;
-                    case "Discord":
-                        DisplayFacebookSettings();
-                        break;
-                    case "Facebook":
-                        DisplayFacebookSettings();
-                        break;
-                    case "Youtube":
-                        DisplayYoutubeSettings();
-                        break;
-                    case "Itch":
-                        DisplayItchSettings();
-                        break;
-                    case "Reddit":
-                        DisplayRedditSettings();
-                        break;
-                    case "Slack":
-                        DisplaySlackSettings();
-                        break;
-                    case "Instagram":
-                        DisplayInstagramSettings();
-                        break;
-                    case "GooglePlus":
-                        DisplayGooglePlusSettings();
-                        break;
-                    case "VKontakte":
-                        DisplayVkontakteSettings();
-                        break;
+                if (WindowData.IMPLEMENTED_AUTHENTICATORS.Contains(data.specificSite)) {
+                    Authenticator auth = Server.Instance.GetAuthenticator(data.specificSite);
+                    if (!auth.Authenticated) {
+                        // Authenticate Button
+                        WindowUtility.Horizontal(() => {
+                            WindowUtility.Vertical(() => {
+                                if (GUILayout.Button("Authenticate")) {
+                                    Server.Instance.SendRequest(data.specificSite, HTTPMethod.Authenticate);
+                                    if (Server.Instance.GetAuthenticator(data.specificSite).Authenticated) {
+                                        PostingWindow.OnAuthenticate(data.specificSite);
+                                    }
+                                }
+                            });
+                        });
+                    } else {
+                        switch (data.specificSite) {
+                            case "Twitter":
+                                DisplayTwitterSettings();
+                                break;
+                            case "Discord":
+                                DisplayDiscordSettings();
+                                break;
+                            case "Facebook":
+                                DisplayFacebookSettings();
+                                break;
+                            case "Youtube":
+                                DisplayYoutubeSettings();
+                                break;
+                            case "Itch":
+                                DisplayItchSettings();
+                                break;
+                            case "Reddit":
+                                DisplayRedditSettings();
+                                break;
+                            case "Slack":
+                                DisplaySlackSettings();
+                                break;
+                            case "Instagram":
+                                DisplayInstagramSettings();
+                                break;
+                            case "GooglePlus":
+                                DisplayGooglePlusSettings();
+                                break;
+                            case "VKontakte":
+                                DisplayVkontakteSettings();
+                                break;
+                        }
+                    }
                 }
+               // Not Implemented
+               else {
+                    WindowUtility.Horizontal(() => {
+                        WindowUtility.Vertical(() => {
+                            GUILayout.Label("Not Supported");
+                        });
+                    });
+               }
             });
         }
 
         private void DisplayTwitterSettings() {
+            GUIStyle rich = new GUIStyle(GUI.skin.box);
+            rich.alignment = TextAnchor.MiddleLeft;
+            rich.richText = true;
+
             WindowUtility.FadeWithFoldout(ref data.restrictionsBool, "Restrictions", () => {
                 WindowUtility.Horizontal(() => {
-                    GUILayout.Box("Twitter has a maximum of 280 characters.");
+                    GUILayout.Box("Twitter has a maximum of 280 characters.", rich);
                 }, 20, 20);
 
                 WindowUtility.Horizontal(() => {
-                    GUILayout.Box("Images...");
+                    GUILayout.Box("You can only make 300 posts every 3 hours.", rich);
                 }, 20, 20);
 
                 WindowUtility.Horizontal(() => {
-                    GUILayout.Box("Videos...");
+                    GUILayout.Box("Images must be less than 5 MB.", rich);
+                }, 20, 20);
+
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Gifs must be less than 15 MB.\nResolution <= 1280x1080\nFrames <= 350\nPixels <= 300 million (Width X Height X Frames)", rich);
+                }, 20, 20);
+
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Easy Marketinig in Unity does not currently support Video Upload using the Twitter API.", rich);
                 }, 20, 20);
             });
 
@@ -327,12 +359,51 @@ namespace EasyMarketingInUnity {
             }, 30, 10);
 
             WindowUtility.Horizontal(() => {
-                GUIContent content = new GUIContent("Create Reply chains", "Reply Chains are multiple tweets that reply to the previous Tweet to create a long message.");
+                GUIContent content = new GUIContent("Create Reply chains", "Reply Chains are multiple tweets that reply to the previous Tweet to create a longer message.");
                 data.twitterReplyChain = GUILayout.Toggle(data.twitterReplyChain, content);
             }, 30, 10);
         }
         private void DisplayDiscordSettings() {
+            GUIStyle rich = new GUIStyle(GUI.skin.box);
+            rich.alignment = TextAnchor.MiddleLeft;
+            rich.richText = true;
 
+            WindowUtility.FadeWithFoldout(ref data.restrictionsBool, "Restrictions", () => {
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Discord has a maximum size limit of 8 MB. You should not go over this in Text.", rich);
+                }, 20, 20);
+
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Discord returns 429 in case of too many posts.", rich);
+                }, 20, 20);
+
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Easy Marketinig in Unity does not currently support Photo or Video Upload using the Discord API.", rich);
+                }, 20, 20);
+            });
+
+            WindowUtility.Horizontal(() => {
+                GUILayout.Label("Current Channel: ");
+
+                var channelName = data.discordAllChannelNames[data.discordDefaultChannelIndex];
+                if(EditorGUILayout.DropdownButton(new GUIContent(channelName), FocusType.Keyboard)){
+                    GenericMenu menu = new GenericMenu();
+
+                    for (int i = 0; i < data.discordAllChannelNames.Length; i++) {
+                        var channel = data.discordAllChannelNames[i];
+                        menu.AddItem(new GUIContent(channel), false, (x) => {
+                            int index = (int)x;
+                            data.discordDefaultChannelIndex = index;
+                        }, i);
+                    }
+
+                    menu.ShowAsContext();
+                }
+
+                if (GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))) {
+                    PostingWindow.OnAuthenticate("Discord");
+                }
+            }, 10, 10);
         }
         private void DisplayFacebookSettings() {
 
@@ -342,7 +413,42 @@ namespace EasyMarketingInUnity {
 
         }
         private void DisplayRedditSettings() {
+            GUIStyle rich = new GUIStyle(GUI.skin.box);
+            rich.alignment = TextAnchor.MiddleLeft;
+            rich.richText = true;
 
+            WindowUtility.FadeWithFoldout(ref data.restrictionsBool, "Restrictions", () => {
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Easy Marketing in Unity will make the beginning section of your post the title.", rich);
+                }, 20, 20);
+
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("Reddit does not support image uploading from their API", rich);
+                }, 20, 20);
+            });
+
+            WindowUtility.Horizontal(() => {
+                GUILayout.Label("Current Subreddit: ");
+
+                var channelName = data.redditAllSubredditNames[data.redditDefaultSubredditIndex];
+                if (EditorGUILayout.DropdownButton(new GUIContent(channelName), FocusType.Keyboard)) {
+                    GenericMenu menu = new GenericMenu();
+
+                    for (int i = 0; i < data.redditAllSubredditNames.Length; i++) {
+                        var channel = data.redditAllSubredditNames[i];
+                        menu.AddItem(new GUIContent(channel), false, (x) => {
+                            int index = (int)x;
+                            data.redditDefaultSubredditIndex = index;
+                        }, i);
+                    }
+
+                    menu.ShowAsContext();
+                }
+
+                if (GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))) {
+                    PostingWindow.OnAuthenticate("Reddit");
+                }
+            }, 10, 10);
         }
         private void DisplayInstagramSettings() {
 
@@ -352,7 +458,38 @@ namespace EasyMarketingInUnity {
 
         }
         private void DisplaySlackSettings() {
+            GUIStyle rich = new GUIStyle(GUI.skin.box);
+            rich.alignment = TextAnchor.MiddleLeft;
+            rich.richText = true;
 
+            WindowUtility.FadeWithFoldout(ref data.restrictionsBool, "Restrictions", () => {
+                WindowUtility.Horizontal(() => {
+                    GUILayout.Box("There are no notable restrictions for Slack.", rich);
+                }, 20, 20);
+            });
+
+            WindowUtility.Horizontal(() => {
+                GUILayout.Label("Current Channel: ");
+
+                var channelName = data.slackAllChannelNames[data.slackDefaultChannelIndex];
+                if (EditorGUILayout.DropdownButton(new GUIContent(channelName), FocusType.Keyboard)) {
+                    GenericMenu menu = new GenericMenu();
+
+                    for (int i = 0; i < data.slackAllChannelNames.Length; i++) {
+                        var channel = data.slackAllChannelNames[i];
+                        menu.AddItem(new GUIContent(channel), false, (x) => {
+                            int index = (int)x;
+                            data.slackDefaultChannelIndex = index;
+                        }, i);
+                    }
+
+                    menu.ShowAsContext();
+                }
+
+                if (GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))) {
+                    PostingWindow.OnAuthenticate("Slack");
+                }
+            }, 10, 10);
         }
         private void DisplayVkontakteSettings() {
 

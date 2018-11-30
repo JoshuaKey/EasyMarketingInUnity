@@ -19,6 +19,13 @@ var configure = function(app){
     });
     
     require('./strategies/twitter').Authentication();
+    require('./strategies/facebook').Authentication();
+    require('./strategies/discord').Authentication();
+    require('./strategies/reddit').Authentication();
+    require('./strategies/slack').Authentication();
+//    require('./strategies/youtube').Authentication();
+//    require('./strategies/itch').Authentication();
+    require('./strategies/vkontakte').Authentication();
 }
 
 // Because I open a Browser Window for Authentication, I must send the Browser's Cookie and Session ID to original
@@ -31,14 +38,23 @@ var successCallback = function (res){
     // Recover Session / Cookies
     try {
         if(res.req.cookies){
-             altResponse.res.req.session = res.req.session;
-             Res.send200Response(altResponse.res, 'Authentication Successful');
+            // Store the original Session and the new Session
+            if(altResponse.res.req.session && altResponse.res.req.session.passport){
+                 res.req.session.passport.user = Object.assign(
+                     altResponse.res.req.session.passport.user, 
+                     res.req.session.passport.user);
+            }
+            
+            altResponse.res.req.session = res.req.session;
+            res.req.session = null;
+            
+            Res.send200Response(altResponse.res, 'Authentication Successful');
         } else {
             Res.send400Response(altResponse.res, -1, 'Session not found');
         }    
     } 
     catch(err){
-        Res.send500Response(altResponse.res, -1, err);
+        Res.send500Response(altResponse.res, -1, err.toString());
     }
 
     altResponse.res = null;

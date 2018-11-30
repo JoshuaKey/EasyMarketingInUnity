@@ -176,7 +176,12 @@ namespace EasyMarketingInUnity {
 
                 GUILayout.FlexibleSpace();
 
-                if(GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))){
+                if (GUILayout.Button("Settings", GUILayout.Height(25))) {
+                    SettingsWindow.ShowWindow();
+                    WindowData.settingData.specificSite = name;
+                }
+
+                if (GUILayout.Button(WindowData.refreshImage, GUILayout.Width(25), GUILayout.Height(25))){
                     CheckResponses(name, true);
                 }
             }, 5, 10);
@@ -199,6 +204,9 @@ namespace EasyMarketingInUnity {
                                     var res = Server.Instance.SendRequest(name, HTTPMethod.Authenticate);
                                     if (settings.debugMode) {
                                         Debug.Log(res);
+                                    }
+                                    if (auth.Authenticated) {
+                                        PostingWindow.OnAuthenticate(name);
                                     }
                                 }
                             }, 20, 20);
@@ -332,11 +340,27 @@ namespace EasyMarketingInUnity {
         private List<ResponseData.Message> GetResponses(string name) {
             List<ResponseData.Message> messages = null;
 
-            var res = Server.Instance.SendRequest(name, HTTPMethod.Get);
+            ServerObject res;
+            string query = "";
 
             switch (name) {
                 case "Twitter":
+                    res = Server.Instance.SendRequest(name, HTTPMethod.Get);
                     messages = TwitterToMessage(res, null, settings.twitterShowReplies);
+                    break;
+                case "Discord":
+                    query = "channel=" + settings.discordAllChannelIDs[settings.discordDefaultChannelIndex];
+                    res = Server.Instance.SendRequest(name, HTTPMethod.Get, query);
+                    messages = DiscordToMessage(res);
+                    break;
+                case "Reddit":
+                    res = Server.Instance.SendRequest(name, HTTPMethod.Get);
+                    messages = RedditToMessage(res, null, false);
+                    break;
+                case "Slack":
+                    query = "channel=" + settings.slackAllChannelIDs[settings.slackDefaultChannelIndex];
+                    res = Server.Instance.SendRequest(name, HTTPMethod.Get, query);
+                    messages = SlackToMessage(res);
                     break;
             }
 
@@ -420,7 +444,160 @@ namespace EasyMarketingInUnity {
 
             return messages;
         }
-        private ResponseData.Message[] FacebookToMessage(ServerObject res) {  return null; }
+        private List<ResponseData.Message> DiscordToMessage(ServerObject res) {
+            List<ResponseData.Message> messages = new List<ResponseData.Message>();
+
+            if (res.errorCode == 0) {
+                if (res.results.Type == JTokenType.Array) { // Multiple Tweets
+                    JArray array = JArray.Parse(res.results.ToString());
+
+                    var messArray = array.Where((x) => {
+                        return x["type"].Value<int>() == 0;
+                    });
+
+                    for (int i = 0; i < messArray.Count(); i++) {
+                        JToken token = messArray.ElementAt(i);
+
+                        ResponseData.Message message = new ResponseData.Message();
+                        message.userId = token["author"]["id"].Value<string>();
+                        message.messageId = token["id"].Value<string>();
+                        message.message = token["content"].Value<string>();
+                        message.name = token["author"]["username"].Value<string>();
+                        if (token["reactions"] != null && token["reactions"].HasValues) {
+                            var reactArray = JArray.Parse(token["reactions"].ToString());
+                            message.liked = reactArray.Where(x => x["me"].Value<bool>()).Count() != 0;
+                        } else {
+                            message.liked = false;
+                        }
+                        message.site = "Discord";
+                        messages.Add(message);
+
+                    }
+                } else { // Single Tweet
+                    JToken token = res.results;
+
+                    ResponseData.Message message = new ResponseData.Message();
+                    message.userId = token["author"]["id"].Value<string>();
+                    message.messageId = token["id"].Value<string>();
+                    message.message = token["content"].Value<string>();
+                    message.name = token["author"]["username"].Value<string>();
+                    if (token["reactions"].HasValues) {
+                        var reactArray = JArray.Parse(token["reactions"].ToString());
+                        message.liked = reactArray.Where(x => x["me"].Value<bool>()).Count() != 0;
+                    } else {
+                        message.liked = false;
+                    }
+                    message.site = "Discord";
+                    messages.Add(message);
+
+                }
+            } else { // Error
+                ResponseData.Message message = new ResponseData.Message();
+                message.message = res.errorMessage;
+                message.name = res.displayMessage + " " + res.status + ":" + res.errorCode;
+                message.site = "Discord";
+                messages.Add(message);
+            }
+
+            return messages;
+        }
+
+        private List<ResponseData.Message> RedditToMessage(ServerObject res, 
+            ResponseData.Message prevMessage = null, bool getReplies = false) {
+            List<ResponseData.Message> messages = new List<ResponseData.Message>();
+
+            if (res.errorCode == 0) {
+                if (res.results["data"]["children"].Type == JTokenType.Array) { // Multiple Tweets
+                    JArray array = JArray.Parse(res.results["data"]["children"].ToString());
+
+                    for (int i = 0; i < array.Count(); i++) {
+                        JToken token = array.ElementAt(i);
+
+                        ResponseData.Message message = new ResponseData.Message();
+                        message.userId = token["data"]["author_fullname"].Value<string>();
+                        message.messageId = token["data"]["name"].Value<string>();
+                        message.message = token["data"]["title"].Value<string>() + ": " + token["data"]["selftext"].Value<string>();
+                        message.name = token["data"]["author"].Value<string>() + " (" + token["data"]["subreddit"].Value<string>() + ")";
+                        message.liked = token["data"]["likes"].Value<bool>();
+                        message.site = "Reddit";
+                        messages.Add(message);
+
+                        if (getReplies) {
+                            string query = "subreddit=" + token["data"]["subreddit"] + "&article=" + token["data"]["id"];
+                            var replyRes = Server.Instance.SendRequest("Reddit", HTTPMethod.Get, query);
+
+                            messages.AddRange(RedditToMessage(replyRes, message, false));
+                        }
+
+                    }
+                } else { // Single Tweet
+                    JToken token = res.results;
+
+                    ResponseData.Message message = new ResponseData.Message();
+                    message.userId = token["data"]["author_fullname"].Value<string>();
+                    message.messageId = token["data"]["name"].Value<string>();
+                    message.message = token["data"]["selftext"].Value<string>();
+                    message.name = token["data"]["author"].Value<string>() + " (" + token["data"]["subreddit"].Value<string>() + ")";
+                    message.liked = token["data"]["likes"].Value<bool>();
+                    message.site = "Reddit";
+                    messages.Add(message);
+
+                }
+            } else { // Error
+                ResponseData.Message message = new ResponseData.Message();
+                message.message = res.errorMessage;
+                message.name = res.displayMessage + " " + res.status + ":" + res.errorCode;
+                message.site = "Reddit";
+                messages.Add(message);
+            }
+
+            return messages;
+        }
+
+        private List<ResponseData.Message> SlackToMessage(ServerObject res) {
+            List<ResponseData.Message> messages = new List<ResponseData.Message>();
+
+            if (res.errorCode == 0) {
+                if (res.results["messages"].Type == JTokenType.Array) { // Multiple Tweets
+                    JArray array = JArray.Parse(res.results["messages"].ToString());
+
+                    for (int i = 0; i < array.Count(); i++) {
+                        JToken token = array.ElementAt(i);
+
+                        ResponseData.Message message = new ResponseData.Message();
+                        message.userId = token["user"].Value<string>();
+                        message.messageId = token["ts"].Value<string>();
+                        message.message = token["text"].Value<string>();
+                        message.name = "???";
+                        //message.liked = token["data"]["likes"].Value<bool>();
+                        message.site = "Slack";
+                        messages.Add(message);
+
+                    }
+                } else { // Single Tweet
+                    JToken token = res.results;
+
+                    ResponseData.Message message = new ResponseData.Message();
+                    message.userId = token["user"].Value<string>();
+                    message.messageId = token["ts"].Value<string>();
+                    message.message = token["text"].Value<string>();
+                    message.name = "???";
+                    //message.liked = token["data"]["likes"].Value<bool>();
+                    message.site = "Slack";
+                    messages.Add(message);
+                    messages.Add(message);
+
+                }
+            } else { // Error
+                ResponseData.Message message = new ResponseData.Message();
+                message.message = res.errorMessage;
+                message.name = res.displayMessage + " " + res.status + ":" + res.errorCode;
+                message.site = "Slack";
+                messages.Add(message);
+            }
+
+            return messages;
+        }
 
         public static string CreateReplyQuery(string auth, string text, string file, ResponseData.Message message) {
             string query = "";

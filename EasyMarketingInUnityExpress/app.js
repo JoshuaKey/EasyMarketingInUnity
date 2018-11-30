@@ -6,8 +6,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var httpLogger = require('morgan');
 //var logger = require('./utility/logger');
-var uuid = require('uuid/v4');
-var FileStore = require('session-file-store')(session);
 
 var homeRouter = require('./routes/home');
 var authRouter = require('./routes/auth');
@@ -53,12 +51,11 @@ app.use(function(err, req, res, next) {
         if( key == 'parent') { return "[Circular Reference]";}
         else {return value;}
     });
-//    logger.error(errString);
-    console.log(errString);
 
     // render the error page
     res.status(err.status || 500);
     
+    console.log(errString);
     console.log(req);
     console.log(err);
     
