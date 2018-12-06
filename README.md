@@ -45,25 +45,9 @@ OS:
 
 Sites:
 * Twitter
-
-Future Support:
-
-OS:
-* Windows
-* Mac
-* Linux
-
-Sites:
-* Twitter
-* Facebook
-* Reddit
 * Discord
+* Reddit
 * Slack
-* Instagram
-* Youtube
-* Itch&#46;io
-* VKontakte
-* Google Plus
 
 ## Errors
 **Error:** "Opening File ... The process can not access the file because it is being used by another process."
